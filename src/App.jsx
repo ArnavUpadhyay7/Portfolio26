@@ -1,18 +1,17 @@
 import './App.css'
 import { Routes, Route } from "react-router-dom";
 import Landing from './pages/Landing';
-import RingCursor from './components/RingCursor';
+import SmoothScroll from './utils/SmoothScroll';
 
 function App() {
 
   return (
-    <>
-      <RingCursor />
+    <SmoothScroll>
       <Routes>
         <Route path="/" element={<Landing />} />
         {/* <Route path="/about" element={<About />} /> */}
       </Routes>
-    </>
+    </SmoothScroll>
   )
 }
 

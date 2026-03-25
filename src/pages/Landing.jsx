@@ -1,176 +1,96 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import RingCursor from "../components/RingCursor";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Loader from "../components/Loader";
-import DistortedText from "../components/DistortedText";
+import ProductsSection from "../components/ProductsSection";
+import HeroSection from "../components/HeroSection";
 
-const CREAM  = "#EAE4D5";
+const CREAM = "#EAE4D5";
 const ORANGE = "#E8400C";
-const E      = [0.16, 1, 0.3, 1];
 
 function GlobalStyles() {
   useEffect(() => {
     const s = document.createElement("style");
-    s.id = "global-base";
-    s.textContent = `*, *::before, *::after { cursor: none !important; }`;
+    s.textContent = `
+      *
+      body { 
+        background: #0a0a0a; 
+        color: ${CREAM}; 
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+      }
+      ::-webkit-scrollbar { display: none; }
+      scrollbar-width: none;
+    `;
     document.head.appendChild(s);
     return () => document.head.removeChild(s);
   }, []);
   return null;
 }
 
-function useLenis() {
-  useEffect(() => {
-    let lenis, raf;
-    (async () => {
-      try {
-        const { default: Lenis } = await import("lenis");
-        lenis = new Lenis({ duration: 1.1, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-        const tick = t => { lenis.raf(t); raf = requestAnimationFrame(tick); };
-        raf = requestAnimationFrame(tick);
-      } catch {}
-    })();
-    return () => { lenis?.destroy(); cancelAnimationFrame(raf); };
-  }, []);
-}
-
-/* ─── hero ─── */
-function HeroSection({ visible }) {
-  const [hovered, setHovered] = useState(false);
-
-  /*
-   * Default:  Arnav = ORANGE,  Upadhyay = CREAM
-   * Hover:    Arnav = CREAM,   Upadhyay = ORANGE
-   */
-  const firstBase  = hovered ? CREAM  : ORANGE;
-  const secondBase = hovered ? ORANGE : CREAM;
-
-  const nameStyle = {
-    fontFamily:    "'Bebas Neue', Impact, sans-serif",
-    fontWeight:    400,
-    lineHeight:    0.88,
-    letterSpacing: "-0.01em",
-    textTransform: "uppercase",
-    fontSize:      "clamp(120px, 26vw, 420px)",
-    display:       "block",
-  };
-
-  return (
-    <section className="relative w-full min-h-screen overflow-hidden flex flex-col bg-[#0a0a0a]">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" />
-
-      <div className="relative flex flex-col min-h-screen z-10">
-
-        {/* Top bar */}
-        <div className="flex items-start justify-between px-[80px] pt-8">
-          <motion.span
-            initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.6, ease: E, delay: 0.05 }}
-            className="font-['Geist',sans-serif] font-light text-[10px] tracking-[0.2em] uppercase text-white/25"
-          >
-            Arnav.dev
-          </motion.span>
-          <motion.span
-            initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.6, ease: E, delay: 0.1 }}
-            className="font-['Geist',sans-serif] font-light text-[10px] tracking-[0.2em] uppercase text-white/25"
-          >
-            Vol. 1 / 2026
-          </motion.span>
-        </div>
-
-        {/* Name block */}
-        <div
-          className="flex-1 flex items-end pl-[80px] pb-0 overflow-hidden"
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          <div>
-            {/* ARNAV */}
-            <div className="overflow-hidden leading-none">
-              <motion.div
-                initial={{ y: "110%" }} animate={visible ? { y: 0 } : { y: "110%" }}
-                transition={{ duration: 1.0, ease: E, delay: 0.08 }}
-              >
-                <DistortedText
-                  text="Arnav"
-                  baseColor={firstBase}
-                  hoverColor={CREAM}
-                  neighborRadius={3}
-                  style={nameStyle}
-                />
-              </motion.div>
-            </div>
-
-            {/* UPADHYAY */}
-            <div className="overflow-hidden leading-none">
-              <motion.div
-                initial={{ y: "110%" }} animate={visible ? { y: 0 } : { y: "110%" }}
-                transition={{ duration: 1.0, ease: E, delay: 0.2 }}
-              >
-                <DistortedText
-                  text="Upadhyay"
-                  baseColor={secondBase}
-                  hoverColor={ORANGE}
-                  neighborRadius={3}
-                  style={nameStyle}
-                />
-              </motion.div>
-            </div>
-          </div>
-        </div>
-
-        {/* Hairline */}
-        <motion.div
-          initial={{ scaleX: 0 }} animate={visible ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 0.9, ease: E, delay: 0.55 }}
-          className="h-px w-full origin-left mt-2"
-          style={{ background: ORANGE }}
-        />
-
-        {/* Bottom bar */}
-        <div className="flex items-end justify-between px-[80px] pt-2 pb-7">
-          <motion.span
-            initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.6, ease: E, delay: 0.6 }}
-            className="font-['Geist',sans-serif] font-light text-[10px] tracking-[0.2em] uppercase text-white/25"
-          >
-            P. 001
-          </motion.span>
-          <div className="text-right flex flex-col gap-1">
-            <motion.span
-              initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0.6, ease: E, delay: 0.65 }}
-              className="font-['Geist',sans-serif] font-light text-[10px] tracking-[0.2em] uppercase text-white/25"
-            >
-              / Frontend Engineer
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0.6, ease: E, delay: 0.72 }}
-              className="font-['Geist',sans-serif] font-light text-[10px] tracking-[0.2em] uppercase text-white/[0.15]"
-            >
-              ↓ Scroll to Tune In
-            </motion.span>
-          </div>
-        </div>
-
-      </div>
-    </section>
-  );
-}
-
-/* ─── root ─── */
 export default function Landing() {
-  useLenis();
   const [heroVisible, setHeroVisible] = useState(false);
+
+  // 1. Get raw scroll progress
+  const { scrollYProgress } = useScroll();
+
+  // 2. STABLE TRANSFORMS 
+  // We use scrollYProgress directly to avoid useSpring initialization bugs
+  const heroScale   = useTransform(scrollYProgress, [0, 0.4], [1, 0.9]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const productsY   = useTransform(scrollYProgress, [0, 0.45], ["100vh", "0vh"]);
+  
+  // Bloom values - simplified
+  const hOpac   = useTransform(scrollYProgress, [0.3, 0.5], [0, 1]);
+  const hLetter = useTransform(scrollYProgress, [0.4, 0.6], ["-0.05em", "0.05em"]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setHeroVisible(true), 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="bg-[#0a0a0a] min-h-screen">
+    <div className="bg-[#0a0a0a] relative w-full">
       <GlobalStyles />
-      <RingCursor />
       <Loader onComplete={() => setHeroVisible(true)} />
-      <main>
-        <HeroSection visible={heroVisible} />
+
+      <main className="relative w-full">
+        {/* HERO: Background layer */}
+        <motion.div
+          style={{
+            scale: heroScale,
+            opacity: heroOpacity,
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100vh",
+            zIndex: 1,
+            pointerEvents: heroVisible ? "auto" : "none",
+          }}
+        >
+          <HeroSection visible={heroVisible} />
+        </motion.div>
+
+        {/* PRODUCTS: Foreground layer */}
+        <motion.div
+          style={{
+            y: productsY,
+            position: "relative",
+            zIndex: 10,
+            backgroundColor: "#0a0a0a",
+            boxShadow: "0 -20vh 100px rgba(0,0,0,0.9)",
+          }}
+        >
+          {/* IMPORTANT: Ensure ProductsSection consumes headerOpacity and headerLetterSpacing as MOTION values */}
+          <ProductsSection 
+            headerOpacity={hOpac} 
+            headerLetterSpacing={hLetter} 
+          />
+        </motion.div>
+        
+        {/* Forces the page to have height to allow scrolling */}
+        <div className="h-[150vh] w-full pointer-events-none" />
       </main>
     </div>
   );

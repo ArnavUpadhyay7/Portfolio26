@@ -1,56 +1,30 @@
-/**
- * DistortedText — zarcerog-style per-letter distortion.
- * Subtle translateY + scaleY with spring overshoot. Opacity falloff on neighbours.
- * Cursor-leave is handled exclusively on the wrapper — one boundary, no races.
- */
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useMemo } from "react";
 import { motion, useSpring } from "framer-motion";
 
-const SPRING_IN  = { stiffness: 380, damping: 22, mass: 0.45 };
-const SPRING_OUT = { stiffness: 240, damping: 28, mass: 0.6  };
+const SPRING = { stiffness: 500, damping: 35, mass: 0.5 };
 
-// How much each distance bucket gets
-const DIST = [
-  { y: -7, scaleY: 0.94, opacity: 1    }, // d=0  hovered
-  { y: -3, scaleY: 0.97, opacity: 0.70 }, // d=1
-  { y: -1, scaleY: 0.99, opacity: 0.45 }, // d=2
-];
-const REST = { y: 0, scaleY: 1, opacity: 0.25 }; // d>=3 while block hovered
-const IDLE = { y: 0, scaleY: 1, opacity: 1    }; // nothing hovered
-
-const Letter = memo(function Letter({
-  char, index, activeIndex, baseColor, hoverColor, onEnter,
-}) {
-  if (char === " ")
-    return <span style={{ display: "inline-block", width: "0.22em" }} />;
+const Letter = memo(({ char, index, activeIndex, color }) => {
+  if (char === " ") return <span className="inline-block w-[0.22em]" />;
 
   const isActive = activeIndex !== null;
-  const d        = isActive ? Math.abs(index - activeIndex) : null;
-  const bucket   = !isActive ? IDLE : d < DIST.length ? DIST[d] : REST;
+  const isHovered = activeIndex === index;
 
-  const cfg   = isActive && d <= 2 ? SPRING_IN : SPRING_OUT;
-  const y     = useSpring(bucket.y,      cfg);
-  const scale = useSpring(bucket.scaleY, cfg);
+  // Ultra-minimal jump: only the hovered letter moves
+  const yTarget = isHovered ? -12 : 0;
+  const opacityTarget = isActive ? (isHovered ? 1 : 0.3) : 1;
 
-  y.set(bucket.y);
-  scale.set(bucket.scaleY);
-
-  const isHovered = d === 0;
-  const color     = isHovered && hoverColor ? hoverColor : (baseColor || "inherit");
+  const y = useSpring(0, SPRING);
+  y.set(yTarget);
 
   return (
     <motion.span
-      onMouseEnter={onEnter}
       style={{
-        display:         "inline-block",
+        display: "inline-block",
         y,
-        scaleY:          scale,
-        opacity:         bucket.opacity,
-        color,
-        transformOrigin: "50% 100%",
-        willChange:      "transform, opacity",
-        transition:      "opacity 0.22s ease, color 0.22s ease",
-        cursor:          "default",
+        opacity: opacityTarget,
+        color: color,
+        transition: "opacity 0.3s ease, color 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        willChange: "transform, opacity",
       }}
     >
       {char}
@@ -58,61 +32,27 @@ const Letter = memo(function Letter({
   );
 });
 
-export default function DistortedText({
-  text          = "",
-  className     = "",
-  style         = {},
-  baseColor,
-  hoverColor,
-  neighborRadius = 2, // kept for compat; visual range is fixed in DIST table
-}) {
-  const [activeIndex, setActiveIndex] = useState(null);
-
-  // ── cursor-leave fix ──────────────────────────────────────────────────────
-  // The bug: letters fire their own mouseleave before the next mouseenter fires,
-  // briefly snapping activeIndex to null and creating a flicker/reset mid-sweep.
-  // Fix: debounce reset with a 1-frame RAF. If a new mouseenter fires before the
-  // frame resolves, the reset is cancelled. Wrapper mouseleave always wins for
-  // true exits (cursor leaves the whole word boundary).
-  const pendingReset = useRef(null);
-
-  const handleEnter = useCallback((i) => {
-    if (pendingReset.current) {
-      cancelAnimationFrame(pendingReset.current);
-      pendingReset.current = null;
-    }
-    setActiveIndex(i);
-  }, []);
-
-  const handleLeave = useCallback(() => {
-    pendingReset.current = requestAnimationFrame(() => {
-      setActiveIndex(null);
-      pendingReset.current = null;
-    });
-  }, []);
-
+export default function DistortedText({ text = "", activeIndex, onEnter, onLeave, color, style }) {
   return (
-    <span
-      className={className}
-      onMouseLeave={handleLeave}
-      style={{
-        display:    "inline-block",
-        lineHeight: "inherit",
-        color:      baseColor || "inherit",
-        ...style,
-      }}
+    <div 
+      className="inline-flex relative overflow-visible" 
+      style={{ ...style, cursor: "none" }}
+      onMouseLeave={onLeave}
     >
       {text.split("").map((char, i) => (
-        <Letter
-          key={i}
-          char={char}
-          index={i}
-          activeIndex={activeIndex}
-          baseColor={baseColor}
-          hoverColor={hoverColor}
-          onEnter={() => handleEnter(i)}
-        />
+        <span 
+          key={i} 
+          onMouseEnter={() => onEnter(i)}
+          className="relative inline-block"
+        >
+          <Letter 
+            char={char} 
+            index={i} 
+            activeIndex={activeIndex} 
+            color={color} 
+          />
+        </span>
       ))}
-    </span>
+    </div>
   );
 }
