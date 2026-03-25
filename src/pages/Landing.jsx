@@ -5,16 +5,16 @@ import ProductsSection from "../components/ProductsSection";
 import HeroSection from "../components/HeroSection";
 
 const CREAM = "#EAE4D5";
-const ORANGE = "#E8400C";
 
 function GlobalStyles() {
   useEffect(() => {
     const s = document.createElement("style");
+    s.id = "global-landing";
     s.textContent = `
-      *
-      body { 
-        background: #0a0a0a; 
-        color: ${CREAM}; 
+      *, *::before, *::after { box-sizing: border-box; }
+      body {
+        background: #0a0a0a;
+        color: ${CREAM};
         overflow-x: hidden;
         margin: 0;
         padding: 0;
@@ -31,18 +31,16 @@ function GlobalStyles() {
 export default function Landing() {
   const [heroVisible, setHeroVisible] = useState(false);
 
-  // 1. Get raw scroll progress
+  // Scroll progress over the FULL page
   const { scrollYProgress } = useScroll();
 
-  // 2. STABLE TRANSFORMS 
-  // We use scrollYProgress directly to avoid useSpring initialization bugs
-  const heroScale   = useTransform(scrollYProgress, [0, 0.4], [1, 0.9]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-  const productsY   = useTransform(scrollYProgress, [0, 0.45], ["100vh", "0vh"]);
-  
-  // Bloom values - simplified
-  const hOpac   = useTransform(scrollYProgress, [0.3, 0.5], [0, 1]);
-  const hLetter = useTransform(scrollYProgress, [0.4, 0.6], ["-0.05em", "0.05em"]);
+  // Hero shrinks + fades as you scroll into the products section
+  const heroScale   = useTransform(scrollYProgress, [0, 0.25], [1, 0.92]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.22], [1, 0]);
+
+  // Products panel slides up from below the fold
+  // [0 → 0.2] products travels from 100vh → 0
+  const productsY = useTransform(scrollYProgress, [0, 0.22], ["100vh", "0vh"]);
 
   useEffect(() => {
     const timer = setTimeout(() => setHeroVisible(true), 3500);
@@ -50,47 +48,42 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="bg-[#0a0a0a] relative w-full">
+    <div className="bg-[#0a0a0a] w-full">
       <GlobalStyles />
       <Loader onComplete={() => setHeroVisible(true)} />
 
       <main className="relative w-full">
-        {/* HERO: Background layer */}
         <motion.div
           style={{
-            scale: heroScale,
-            opacity: heroOpacity,
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100vh",
-            zIndex: 1,
-            pointerEvents: heroVisible ? "auto" : "none",
+            scale:        heroScale,
+            opacity:      heroOpacity,
+            position:     "fixed",
+            top:          0,
+            left:         0,
+            width:        "100%",
+            height:       "100vh",
+            zIndex:       1,
+            pointerEvents: "auto",
+            transformOrigin: "center top",
           }}
         >
           <HeroSection visible={heroVisible} />
         </motion.div>
 
-        {/* PRODUCTS: Foreground layer */}
+        <div style={{ height: "140vh", pointerEvents: "none" }} />
+
         <motion.div
           style={{
-            y: productsY,
-            position: "relative",
-            zIndex: 10,
+            y:               productsY,
+            position:        "relative",
+            zIndex:          10,
             backgroundColor: "#0a0a0a",
-            boxShadow: "0 -20vh 100px rgba(0,0,0,0.9)",
+            // hard shadow to hide the hero peeking beneath during transition
+            boxShadow:       "0 -60px 120px 40px #0a0a0a",
           }}
         >
-          {/* IMPORTANT: Ensure ProductsSection consumes headerOpacity and headerLetterSpacing as MOTION values */}
-          <ProductsSection 
-            headerOpacity={hOpac} 
-            headerLetterSpacing={hLetter} 
-          />
+          <ProductsSection />
         </motion.div>
-        
-        {/* Forces the page to have height to allow scrolling */}
-        <div className="h-[150vh] w-full pointer-events-none" />
       </main>
     </div>
   );

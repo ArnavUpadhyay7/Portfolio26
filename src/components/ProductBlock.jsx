@@ -1,95 +1,186 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-const E = [0.16, 1, 0.3, 1];
+const CREAM = "#EAE4D5";
+const E     = [0.16, 1, 0.3, 1];
 
 export function ProductBlock({ product, index }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  const [isHovered, setIsHovered] = useState(false);
+  const ref       = useRef(null);
+  const inView    = useInView(ref, { once: true, margin: "-80px" });
+  const [hovered, setHovered] = useState(false);
+  const navigate  = useNavigate();
+
+  const isEven = index % 2 === 0;
 
   return (
-    <div 
-      ref={ref} 
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative px-6 lg:px-20 py-32 border-b border-white/5 transition-colors duration-700 ease-in-out"
-      style={{ 
-        backgroundColor: isHovered ? `${product.accent}05` : "transparent" 
+    <motion.div
+      ref={ref}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      initial={{ opacity: 0, y: 48 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.85, ease: E, delay: index * 0.08 }}
+      className="relative px-10 lg:px-20 py-24 border-b border-white/5 transition-colors duration-700"
+      style={{
+        backgroundColor: hovered ? `${product.accent}06` : "transparent",
+        fontFamily: "'Geist', sans-serif",
       }}
     >
-      <div className={`flex flex-col lg:flex-row items-center gap-16 lg:gap-32 ${index % 2 !== 0 ? "lg:flex-row-reverse" : ""}`}>
-        
-        {/* ── LEFT: CONTENT ── */}
-        <div className="flex flex-col lg:w-5/12 items-start text-left z-10">
-          <div className="flex items-center gap-4 mb-8">
-            <span className="text-[10px] tracking-[0.5em] text-white/20 uppercase font-mono">
+      {/* Subtle accent glow on hover */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+        style={{
+          opacity:    hovered ? 1 : 0,
+          background: `radial-gradient(ellipse 60% 50% at ${isEven ? "80%" : "20%"} 50%, ${product.accent}08, transparent)`,
+        }}
+      />
+
+      <div className={`relative flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-24 ${!isEven ? "lg:flex-row-reverse" : ""}`}>
+
+        {/* ── TEXT SIDE ── */}
+        <div className="flex flex-col gap-8 lg:w-5/12">
+
+          {/* Index + line */}
+          <div className="flex items-center gap-4">
+            <span
+              className="text-[9px] tracking-[0.5em] uppercase"
+              style={{ color: "rgba(255,255,255,0.18)", fontWeight: 300 }}
+            >
               0{index + 1}
             </span>
-            <motion.div 
-              animate={{ width: isHovered ? 60 : 20 }}
-              className="h-px bg-white/10" 
+            <motion.div
+              animate={{ width: hovered ? 48 : 16 }}
+              transition={{ duration: 0.4, ease: E }}
+              className="h-px"
+              style={{ background: `${product.accent}50` }}
             />
           </div>
 
-          <h2 
-            className="text-6xl lg:text-9xl font-black tracking-tighter leading-[0.8] mb-10 uppercase transition-colors duration-500"
-            style={{ 
-              color: isHovered ? product.accent : "white",
-              fontFamily: "'Barlow Condensed', sans-serif" 
+          {/* Product name */}
+          <motion.h2
+            animate={{ color: hovered ? product.accent : CREAM }}
+            transition={{ duration: 0.4, ease: E }}
+            style={{
+              fontFamily:    "'Barlow Condensed', sans-serif",
+              fontWeight:    800,
+              fontSize:      "clamp(3.5rem, 7vw, 7rem)",
+              lineHeight:    0.88,
+              letterSpacing: "-0.02em",
+              textTransform: "uppercase",
             }}
           >
             {product.name}
-          </h2>
+          </motion.h2>
 
-          <div className="space-y-10">
-            <p className={`text-xl font-light leading-snug max-w-sm transition-opacity duration-500 ${isHovered ? "text-white/90" : "text-white/40"}`}>
-              {product.hook}
-            </p>
-            
-            {/* Tech Stack: Clean Typographic List */}
-            <div className="flex flex-wrap gap-x-6 gap-y-2">
-              {product.stack.map(tech => (
-                <span key={tech} className="text-[9px] tracking-[0.2em] uppercase text-white/30">
-                  {tech}
-                </span>
-              ))}
-            </div>
+          {/* Hook */}
+          <p
+            className="text-base font-light leading-relaxed transition-opacity duration-500"
+            style={{ color: hovered ? "rgba(234,228,213,0.85)" : "rgba(234,228,213,0.4)", maxWidth: "34ch" }}
+          >
+            {product.hook}
+          </p>
 
-            <button className={`text-[10px] uppercase tracking-[0.4em] pb-2 border-b transition-all duration-500 ${isHovered ? "text-white border-white" : "text-white/20 border-white/5"}`}>
-              Explore Project
-            </button>
+          {/* Description */}
+          <p
+            className="text-sm font-light leading-loose transition-opacity duration-700"
+            style={{ color: hovered ? "rgba(234,228,213,0.45)" : "rgba(234,228,213,0.2)", maxWidth: "38ch" }}
+          >
+            {product.desc}
+          </p>
+
+          {/* Stack tags */}
+          <div className="flex flex-wrap gap-2">
+            {product.stack.map(tech => (
+              <span
+                key={tech}
+                className="text-[9px] tracking-[0.18em] uppercase px-3 py-1.5 rounded-full transition-all duration-500"
+                style={{
+                  fontWeight:  300,
+                  color:       hovered ? `${product.accent}90` : "rgba(255,255,255,0.22)",
+                  border:      `1px solid ${hovered ? `${product.accent}35` : "rgba(255,255,255,0.08)"}`,
+                }}
+              >
+                {tech}
+              </span>
+            ))}
           </div>
+
+          {/* CTA */}
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate(`/products/${product.id}`)}
+            className="self-start flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase py-3 px-6 rounded-full transition-all duration-400"
+            style={{
+              fontWeight:  400,
+              color:       hovered ? product.accent : "rgba(255,255,255,0.3)",
+              border:      `1px solid ${hovered ? `${product.accent}60` : "rgba(255,255,255,0.1)"}`,
+              background:  hovered ? `${product.accent}08` : "transparent",
+            }}
+          >
+            View Case Study
+            <motion.span
+              animate={{ x: hovered ? 4 : 0 }}
+              transition={{ duration: 0.3, ease: E }}
+            >
+              →
+            </motion.span>
+          </motion.button>
         </div>
 
-        {/* ── RIGHT: IMAGE PORTAL ── */}
-        <div className="lg:w-7/12 w-full">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-[#0c0c0c] shadow-2xl">
-            {/* The Image Logic */}
-            <motion.img 
-              src={product.mockup.src} 
+        {/* ── IMAGE SIDE ── */}
+        <div className="lg:w-7/12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 1.0, ease: E, delay: 0.12 + index * 0.06 }}
+            className="relative overflow-hidden rounded-sm"
+            style={{
+              aspectRatio: "16 / 10",
+              background:  `linear-gradient(135deg, #111 0%, #0d0d0d 100%)`,
+              border:      `1px solid rgba(255,255,255,0.06)`,
+            }}
+          >
+            {/* Actual mockup image */}
+            <motion.img
+              src={product.mockup.src}
               alt={product.name}
-              initial={{ filter: "grayscale(100%) opacity(0.3)" }}
-              animate={{ 
-                filter: isHovered ? "grayscale(0%) opacity(1)" : "grayscale(100%) opacity(0.3)",
-                scale: isHovered ? 1.05 : 1
+              animate={{
+                scale:  hovered ? 1.04 : 1,
+                filter: hovered
+                  ? "grayscale(0%) brightness(1)"
+                  : "grayscale(80%) brightness(0.55)",
               }}
-              transition={{ duration: 1, ease: E }}
-              className="w-full h-full object-contain p-8 lg:p-12"
+              transition={{ duration: 0.9, ease: E }}
+              className="w-full h-full object-contain p-8 lg:p-10"
             />
-            
-            {/* Accent Glow Overlay */}
-            <div 
+
+            {/* Accent overlay on hover */}
+            <div
               className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
-              style={{ 
-                opacity: isHovered ? 0.1 : 0,
-                background: `radial-gradient(circle at center, ${product.accent}, transparent)` 
+              style={{
+                opacity:    hovered ? 0.08 : 0,
+                background: `radial-gradient(circle at center, ${product.accent}, transparent 70%)`,
               }}
             />
-          </div>
+
+            {/* Corner label */}
+            <div className="absolute bottom-4 right-5">
+              <span
+                className="text-[8px] tracking-[0.22em] uppercase transition-opacity duration-500"
+                style={{
+                  fontWeight: 300,
+                  color:      hovered ? `${product.accent}70` : "rgba(255,255,255,0.15)",
+                }}
+              >
+                {product.name} / Preview
+              </span>
+            </div>
+          </motion.div>
         </div>
 
       </div>
-    </div>
+    </motion.div>
   );
 }
