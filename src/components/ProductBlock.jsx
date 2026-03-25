@@ -6,28 +6,32 @@ const CREAM = "#EAE4D5";
 const E     = [0.16, 1, 0.3, 1];
 
 export function ProductBlock({ product, index }) {
-  const ref       = useRef(null);
-  const inView    = useInView(ref, { once: true, margin: "-80px" });
+  const ref      = useRef(null);
+  const inView   = useInView(ref, { once: true, margin: "-80px" });
   const [hovered, setHovered] = useState(false);
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
   const isEven = index % 2 === 0;
+  // Route: /elevate or /zentra directly
+  const route  = `/${product.id}`;
 
   return (
     <motion.div
       ref={ref}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={() => navigate(route)}
       initial={{ opacity: 0, y: 48 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.85, ease: E, delay: index * 0.08 }}
-      className="relative px-10 lg:px-20 py-24 border-b border-white/5 transition-colors duration-700"
+      className="relative px-10 lg:px-20 py-24 border-b border-white/[0.05] transition-colors duration-700"
       style={{
         backgroundColor: hovered ? `${product.accent}06` : "transparent",
-        fontFamily: "'Geist', sans-serif",
+        fontFamily:      "'Geist', sans-serif",
+        cursor:          "pointer",        // custom cursor stays active
       }}
     >
-      {/* Subtle accent glow on hover */}
+      {/* Subtle accent glow */}
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
         style={{
@@ -41,7 +45,7 @@ export function ProductBlock({ product, index }) {
         {/* ── TEXT SIDE ── */}
         <div className="flex flex-col gap-8 lg:w-5/12">
 
-          {/* Index + line */}
+          {/* Index + animated line */}
           <div className="flex items-center gap-4">
             <span
               className="text-[9px] tracking-[0.5em] uppercase"
@@ -76,7 +80,10 @@ export function ProductBlock({ product, index }) {
           {/* Hook */}
           <p
             className="text-base font-light leading-relaxed transition-opacity duration-500"
-            style={{ color: hovered ? "rgba(234,228,213,0.85)" : "rgba(234,228,213,0.4)", maxWidth: "34ch" }}
+            style={{
+              color:     hovered ? "rgba(234,228,213,0.85)" : "rgba(234,228,213,0.4)",
+              maxWidth:  "34ch",
+            }}
           >
             {product.hook}
           </p>
@@ -84,7 +91,10 @@ export function ProductBlock({ product, index }) {
           {/* Description */}
           <p
             className="text-sm font-light leading-loose transition-opacity duration-700"
-            style={{ color: hovered ? "rgba(234,228,213,0.45)" : "rgba(234,228,213,0.2)", maxWidth: "38ch" }}
+            style={{
+              color:    hovered ? "rgba(234,228,213,0.45)" : "rgba(234,228,213,0.2)",
+              maxWidth: "38ch",
+            }}
           >
             {product.desc}
           </p>
@@ -96,9 +106,9 @@ export function ProductBlock({ product, index }) {
                 key={tech}
                 className="text-[9px] tracking-[0.18em] uppercase px-3 py-1.5 rounded-full transition-all duration-500"
                 style={{
-                  fontWeight:  300,
-                  color:       hovered ? `${product.accent}90` : "rgba(255,255,255,0.22)",
-                  border:      `1px solid ${hovered ? `${product.accent}35` : "rgba(255,255,255,0.08)"}`,
+                  fontWeight: 300,
+                  color:      hovered ? `${product.accent}90` : "rgba(255,255,255,0.22)",
+                  border:     `1px solid ${hovered ? `${product.accent}35` : "rgba(255,255,255,0.08)"}`,
                 }}
               >
                 {tech}
@@ -106,17 +116,17 @@ export function ProductBlock({ product, index }) {
             ))}
           </div>
 
-          {/* CTA */}
+          {/* CTA — stops propagation so only the button nav fires, not double-nav */}
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => navigate(`/products/${product.id}`)}
-            className="self-start flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase py-3 px-6 rounded-full transition-all duration-400"
+            onClick={e => { e.stopPropagation(); navigate(route); }}
+            className="self-start flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase py-3 px-6 rounded-full transition-all duration-300"
             style={{
-              fontWeight:  400,
-              color:       hovered ? product.accent : "rgba(255,255,255,0.3)",
-              border:      `1px solid ${hovered ? `${product.accent}60` : "rgba(255,255,255,0.1)"}`,
-              background:  hovered ? `${product.accent}08` : "transparent",
+              fontWeight: 400,
+              color:      hovered ? product.accent : "rgba(255,255,255,0.3)",
+              border:     `1px solid ${hovered ? `${product.accent}60` : "rgba(255,255,255,0.1)"}`,
+              background: hovered ? `${product.accent}08` : "transparent",
             }}
           >
             View Case Study
@@ -138,11 +148,10 @@ export function ProductBlock({ product, index }) {
             className="relative overflow-hidden rounded-sm"
             style={{
               aspectRatio: "16 / 10",
-              background:  `linear-gradient(135deg, #111 0%, #0d0d0d 100%)`,
-              border:      `1px solid rgba(255,255,255,0.06)`,
+              background:  "linear-gradient(135deg, #111 0%, #0d0d0d 100%)",
+              border:      "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            {/* Actual mockup image */}
             <motion.img
               src={product.mockup.src}
               alt={product.name}
@@ -156,7 +165,7 @@ export function ProductBlock({ product, index }) {
               className="w-full h-full object-contain p-8 lg:p-10"
             />
 
-            {/* Accent overlay on hover */}
+            {/* Accent overlay */}
             <div
               className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
               style={{
