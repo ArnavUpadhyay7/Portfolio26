@@ -1,16 +1,3 @@
-/**
- * Loader.jsx — fixed
- *
- * Two bugs fixed:
- *  1. "ENTERING" text was hidden — z-index stack was wrong.
- *     Correct order: base(1) → flash(2) → entering-text(3) → curtain(4) → hud(5)
- *     Curtain must NOT cover flash phase content, so it only activates on "wipe".
- *  2. Page was scrollable during load — body overflow is locked until done.
- *
- * Phases:
- *   count → flash (full red + "ENTERING" text) → wipe (black curtain lifts) → done
- */
-
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

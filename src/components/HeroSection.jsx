@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import DistortedText from "../components/DistortedText";
+import FireRain from "./FireRain";
 
 const CREAM = "#EAE4D5";
 const RED = "#E8400C";
@@ -21,11 +22,13 @@ export default function HeroSection({ visible }) {
   };
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-between px-10 lg:px-20 pt-12 pb-16 bg-[#0a0a0a] overflow-hidden">
+    <section className="relative overflow-hidden w-full min-h-screen flex flex-col justify-between px-10 lg:px-20 pt-12 pb-16 bg-[#0a0a0a]">
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
       />
+
+      <FireRain count={5}/>
 
       {/* Top HUD */}
       <div className="flex justify-between items-start z-10">
