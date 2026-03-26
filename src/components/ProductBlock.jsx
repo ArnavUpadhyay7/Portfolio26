@@ -24,7 +24,7 @@ export function ProductBlock({ product, index }) {
       initial={{ opacity: 0, y: 48 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.85, ease: E, delay: index * 0.08 }}
-      className="relative px-10 lg:px-20 py-24 border-b border-white/[0.05] transition-colors duration-700"
+      className="relative px-10 lg:px-20 py-24 border-b border-white/5 transition-colors duration-700"
       style={{
         backgroundColor: hovered ? `${product.accent}06` : "transparent",
         fontFamily:      "'Geist', sans-serif",

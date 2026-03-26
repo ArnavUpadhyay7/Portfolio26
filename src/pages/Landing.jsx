@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Loader from "../components/Loader";
 import ProductsSection from "../components/ProductsSection";
 import HeroSection from "../components/HeroSection";
+import SkillsSection from "../components/SkillsSection";
 
 const CREAM = "#EAE4D5";
 
@@ -67,7 +68,7 @@ export default function Landing() {
             transformOrigin: "center top",
           }}
         >
-          <HeroSection visible={heroVisible} />
+          <HeroSection visible={heroVisible} /> 
         </motion.div>
 
         <div style={{ height: "140vh", pointerEvents: "none" }} />
@@ -83,6 +84,7 @@ export default function Landing() {
           }}
         >
           <ProductsSection />
+          <SkillsSection />
         </motion.div>
       </main>
     </div>
