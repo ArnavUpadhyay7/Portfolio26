@@ -4,6 +4,7 @@ import Loader from "../components/Loader";
 import ProductsSection from "../components/ProductsSection";
 import HeroSection from "../components/HeroSection";
 import SkillsSection from "../components/SkillsSection";
+import AboutSection from "../components/AboutSection";
 
 const CREAM = "#EAE4D5";
 
@@ -34,7 +35,7 @@ export default function Landing() {
 
   const { scrollYProgress } = useScroll();
 
-  const heroScale   = useTransform(scrollYProgress, [0, 0.25], [1, 0.94]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.25], [1, 0.94]);
   const heroOpacity = useTransform(scrollYProgress, [0.18, 0.26], [1, 0]);
 
   // Products panel slides up — unchanged
@@ -53,18 +54,17 @@ export default function Landing() {
       <main className="relative w-full">
         <motion.div
           style={{
-            scale:           heroScale,
-            opacity:         heroOpacity,
-            position:        "fixed",
-            top:             0,
-            left:            0,
-            width:           "100%",
-            height:          "100vh",
-            zIndex:          1,
-            pointerEvents:   "auto",
+            scale: heroScale,
+            opacity: heroOpacity,
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100vh",
+            zIndex: 1,
+            pointerEvents: "auto",
             transformOrigin: "center top",
-          }}
-        >
+          }}>
           <HeroSection visible={heroVisible} />
         </motion.div>
 
@@ -72,15 +72,22 @@ export default function Landing() {
 
         <motion.div
           style={{
-            y:               productsY,
-            position:        "relative",
-            zIndex:          10,
+            y: productsY,
+            position: "relative",
+            zIndex: 10,
             backgroundColor: "#0a0a0a",
-            boxShadow:       "0 -60px 120px 40px #0a0a0a",
-          }}
-        >
+            boxShadow: "0 -60px 120px 40px #0a0a0a",
+          }}>
           <ProductsSection />
           <SkillsSection />
+          <motion.div
+            style={{
+              position: "relative",
+              zIndex: 15,
+              backgroundColor: "#0a0a0a",
+            }}>
+            <AboutSection />
+          </motion.div>
         </motion.div>
       </main>
     </div>

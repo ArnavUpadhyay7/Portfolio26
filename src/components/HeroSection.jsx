@@ -32,7 +32,7 @@ export default function HeroSection({ visible }) {
   /* ── Text — reduced ~20% from original clamp ── */
   const nameStyle = {
     fontFamily:    "'Bebas Neue', sans-serif",
-    fontSize:      "clamp(80px, 18vw, 340px)",   // was clamp(100px, 23vw, 420px)
+    fontSize:      "clamp(80px, 18vw, 340px)",  
     lineHeight:    "0.82",
     letterSpacing: "-0.04em",
     textTransform: "uppercase",
