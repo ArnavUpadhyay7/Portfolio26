@@ -32,15 +32,12 @@ function GlobalStyles() {
 export default function Landing() {
   const [heroVisible, setHeroVisible] = useState(false);
 
-  // Scroll progress over the FULL page
   const { scrollYProgress } = useScroll();
 
-  // Hero shrinks + fades as you scroll into the products section
-  const heroScale   = useTransform(scrollYProgress, [0, 0.25], [1, 0.92]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.22], [1, 0]);
+  const heroScale   = useTransform(scrollYProgress, [0, 0.25], [1, 0.94]);
+  const heroOpacity = useTransform(scrollYProgress, [0.18, 0.26], [1, 0]);
 
-  // Products panel slides up from below the fold
-  // [0 → 0.2] products travels from 100vh → 0
+  // Products panel slides up — unchanged
   const productsY = useTransform(scrollYProgress, [0, 0.22], ["100vh", "0vh"]);
 
   useEffect(() => {
@@ -56,19 +53,19 @@ export default function Landing() {
       <main className="relative w-full">
         <motion.div
           style={{
-            scale:        heroScale,
-            opacity:      heroOpacity,
-            position:     "fixed",
-            top:          0,
-            left:         0,
-            width:        "100%",
-            height:       "100vh",
-            zIndex:       1,
-            pointerEvents: "auto",
+            scale:           heroScale,
+            opacity:         heroOpacity,
+            position:        "fixed",
+            top:             0,
+            left:            0,
+            width:           "100%",
+            height:          "100vh",
+            zIndex:          1,
+            pointerEvents:   "auto",
             transformOrigin: "center top",
           }}
         >
-          <HeroSection visible={heroVisible} /> 
+          <HeroSection visible={heroVisible} />
         </motion.div>
 
         <div style={{ height: "140vh", pointerEvents: "none" }} />
@@ -79,7 +76,6 @@ export default function Landing() {
             position:        "relative",
             zIndex:          10,
             backgroundColor: "#0a0a0a",
-            // hard shadow to hide the hero peeking beneath during transition
             boxShadow:       "0 -60px 120px 40px #0a0a0a",
           }}
         >
