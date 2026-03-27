@@ -5,6 +5,7 @@ import ProductsSection from "../components/ProductsSection";
 import HeroSection from "../components/HeroSection";
 import SkillsSection from "../components/SkillsSection";
 import AboutSection from "../components/AboutSection";
+import ContactSection from "../components/ContactSection";
 
 const CREAM = "#EAE4D5";
 
@@ -80,14 +81,8 @@ export default function Landing() {
           }}>
           <ProductsSection />
           <SkillsSection />
-          <motion.div
-            style={{
-              position: "relative",
-              zIndex: 15,
-              backgroundColor: "#0a0a0a",
-            }}>
-            <AboutSection />
-          </motion.div>
+          <AboutSection />
+          <ContactSection />
         </motion.div>
       </main>
     </div>
