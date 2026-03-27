@@ -1,14 +1,3 @@
-/**
- * ContactSection.jsx
- *
- * Scroll-driven final section.
- * Outer h-[200vh] wrapper pins a sticky h-screen frame.
- * Scroll progress 0→1 drives all reveals sequentially.
- *
- * Font in <head>:
- *   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@300;400&display=swap" rel="stylesheet" />
- */
-
 import { useRef, useState, useCallback } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
@@ -19,7 +8,7 @@ const BG     = "#080604";
 const CREAM  = "rgba(234,228,213,1)";
 
 // ─── Contact items ────────────────────────────────────────────────────────────
-const EMAIL = "arnav@arnav.dev"; // ← replace with real email
+const EMAIL = "arnavupadhyay7@gmail.com"; 
 
 const LINKS = [
   {
@@ -29,13 +18,13 @@ const LINKS = [
   },
   {
     label:  "GitHub",
-    sub:    "github.com/arnavupadhyay",   // ← replace
-    href:   "https://github.com/arnavupadhyay",
+    sub:    "github.com/ArnavUpadhyay7",  
+    href:   "https://github.com/ArnavUpadhyay7",
   },
   {
     label:  "LinkedIn",
-    sub:    "linkedin.com/in/arnav",       // ← replace
-    href:   "https://linkedin.com/in/arnav",
+    sub:    "linkedin.com/in/arnav-upadhyay7/", 
+    href:   "https://www.linkedin.com/in/arnav-upadhyay7/",
   },
 ];
 
@@ -367,12 +356,12 @@ export default function ContactSection() {
             <span style={{
               fontFamily:    "'Barlow', sans-serif",
               fontWeight:    300,
-              fontSize:      9,
+              fontSize:      12,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color:         "rgba(234,228,213,0.18)",
+              color:         "white",
             }}>
-              Based in India · Available for freelance &amp; full-time
+              Based in India · Available for freelance &amp; Internships
             </span>
           </motion.p>
         </div>
