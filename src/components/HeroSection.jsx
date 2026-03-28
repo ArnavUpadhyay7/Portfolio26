@@ -55,19 +55,6 @@ function ScrambleWord({ text, color, style, delay = 0, visible }) {
   );
 }
 
-/* ── Background Grid ──
-   Dot grid + structural lines.
-
-   LIGHTING CHANGE:
-   - Removed: all radial gradients, oval/circular glows, centered glow shapes
-   - Removed: the rgba(232,64,12,0.018) rect with radial mask
-   - Removed: the center vertical orange axis line
-   - Added: a single left-to-right linear energy gradient overlay (div, not SVG)
-     that lives outside the SVG so it's fully responsive without SVG coordinate math.
-     Left edge: very faint warm orange tint. Right edge: pure transparent (black).
-     Transition is extremely gradual — 0% → 58% still has color, then fades to 0.
-     This mimics a directional light field from the left (where the name lives).
-── */
 function BackgroundGrid({ visible }) {
   return (
     <motion.div
@@ -77,21 +64,7 @@ function BackgroundGrid({ visible }) {
       animate={visible ? { opacity: 1 } : {}}
       transition={{ duration: 1.4, ease: E, delay: 0.3 }}
     >
-      {/*
-        Directional light field — left to right linear gradient.
-        No radial shapes. No blobs. No centered glows.
-        Just a warm left-side tint that dies out naturally before center.
 
-        Using a div (not SVG rect) so it's 100% responsive by default
-        and doesn't require SVG coordinate recalculation.
-
-        Three-stop gradient:
-          0%   → rgba(232,64,12, 0.055)  — warm but very subtle at the far left
-          42%  → rgba(232,64,12, 0.018)  — nearly gone by mid-screen
-          100% → transparent             — full black on the right
-
-        This keeps the right side (contrast side) completely dark.
-      */}
       <div
         style={{
           position:   "absolute",
@@ -103,7 +76,6 @@ function BackgroundGrid({ visible }) {
             rgba(232,64,12,0.010)  42%,
             transparent            72%
           )`,
-          // No border-radius — this is a directional field, not a shape
         }}
       />
 
@@ -161,15 +133,18 @@ function BackgroundGrid({ visible }) {
           />
         ))}
 
-        {/* Corner tick marks — unchanged */}
-        <line x1="5%"  y1="4%"  x2="8%"  y2="4%"  stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="5%"  y1="4%"  x2="5%"  y2="8%"  stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="92%" y1="4%"  x2="95%" y2="4%"  stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="95%" y1="4%"  x2="95%" y2="8%"  stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="5%"  y1="96%" x2="8%"  y2="96%" stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="5%"  y1="92%" x2="5%"  y2="96%" stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="92%" y1="96%" x2="95%" y2="96%" stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
-        <line x1="95%" y1="92%" x2="95%" y2="96%" stroke="rgba(232,64,12,0.22)" strokeWidth="0.75" />
+        {/* Top-left corner */}
+        <line x1="2.2%" y1="3.8%" x2="4.0%" y2="3.8%" stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        <line x1="2.2%" y1="3.8%" x2="2.2%" y2="7.6%"  stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        {/* Top-right corner */}
+        <line x1="96.0%" y1="3.8%" x2="97.8%" y2="3.8%" stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        <line x1="97.8%" y1="3.8%" x2="97.8%" y2="7.6%"  stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        {/* Bottom-left corner */}
+        <line x1="2.2%" y1="96.2%" x2="4.0%" y2="96.2%" stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        <line x1="2.2%" y1="92.4%" x2="2.2%" y2="96.2%" stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        {/* Bottom-right corner */}
+        <line x1="96.0%" y1="96.2%" x2="97.8%" y2="96.2%" stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
+        <line x1="97.8%" y1="92.4%" x2="97.8%" y2="96.2%" stroke="rgba(232,64,12,0.18)" strokeWidth="0.75" />
 
         {/* Diagonal accent — bottom right */}
         <line

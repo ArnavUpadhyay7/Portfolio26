@@ -439,7 +439,7 @@ export default function ContactSection() {
                 textTransform: "uppercase",
                 color: `rgba(${OR_RGB},0.40)`,
               }}>
-              © 2025
+              © 2026
             </span>
           </motion.div>
         </div>

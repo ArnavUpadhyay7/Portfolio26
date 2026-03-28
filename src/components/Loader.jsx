@@ -276,7 +276,7 @@ export default function Loader({ onComplete }) {
                     color:         `rgba(232,64,12,0.55)`,
                   }}
                 >
-                  Portfolio 2025
+                  Portfolio 2026
                 </motion.span>
               </motion.div>
             )}

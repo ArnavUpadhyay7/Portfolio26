@@ -129,7 +129,7 @@ export default function Zentra() {
           transition={{ duration: 0.6, ease: E, delay: 0.1 }}
           className="text-[10px] tracking-[0.4em] uppercase mb-8"
           style={{ color: `${ORANGE}70`, fontWeight: 300 }}>
-          Product · 2025
+          Product · 2026
         </motion.p>
 
         <div className="overflow-hidden mb-6">
@@ -165,7 +165,7 @@ export default function Zentra() {
             { label: "Role",  value: "Full Stack Dev" },
             { label: "Stack", value: "MERN · Socket.io · Tailwind · Redis" },
             { label: "Team",  value: "2 Engineers" },
-            { label: "Year",  value: "2025" },
+            { label: "Year",  value: "2026" },
           ].map(({ label, value }) => (
             <div key={label}>
               <p className="text-[9px] tracking-[0.3em] uppercase mb-2" style={{ color: "rgba(255,255,255,0.22)", fontWeight: 300 }}>{label}</p>

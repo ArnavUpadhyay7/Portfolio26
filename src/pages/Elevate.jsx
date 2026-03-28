@@ -129,7 +129,7 @@ export default function Elevate() {
           transition={{ duration: 0.6, ease: E, delay: 0.1 }}
           className="text-[10px] tracking-[0.4em] uppercase mb-8"
           style={{ color: `${ORANGE}70`, fontWeight: 300 }}>
-          Product · 2025
+          Product · 2026
         </motion.p>
 
         <div className="overflow-hidden mb-6">
@@ -163,7 +163,7 @@ export default function Elevate() {
           style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {[
             { label: "Role",  value: "Full Stack Dev" },
-            { label: "Stack", value: "Next.js · MongoDB · OpenAI · Tailwind" },
+            { label: "Stack", value: "React.js · MongoDB · OpenAI · Tailwind" },
             { label: "Team",  value: "Solo" },
             { label: "Year",  value: "2025" },
           ].map(({ label, value }) => (
