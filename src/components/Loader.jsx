@@ -1,41 +1,50 @@
+/**
+ * Loader.jsx — Redesigned
+ *
+ * Old sequence: count → full orange flash (jarring) → wipe
+ * New sequence: count → cinematic text reveal on dark BG → slim orange bar wipe → done
+ *
+ * Key UX fixes:
+ * - Zero full-screen orange flash. Orange is accent-only throughout.
+ * - "ENTERING" reveal happens on the dark background — no brightness shock.
+ * - Wipe curtain is dark (#0a0a0a) with a single leading orange edge line,
+ *   not a solid orange panel — preserves visual continuity with the hero beneath.
+ * - Counter fades out gracefully into the text reveal (crossfade, not cut).
+ * - All transitions use the site's unified easing [0.16, 1, 0.3, 1].
+ * - Scroll locked for entire pre-wipe duration, released as wipe starts.
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ORANGE = "#E8400C";
-const CREAM  = "rgba(234,228,213,0.75)";
+const OR    = "#E8400C";
+const BG    = "#0a0a0a";
+const CREAM = "rgba(234,228,213,1)";
+const E     = [0.16, 1, 0.3, 1];
 const E_SNAP = [0.76, 0, 0.24, 1];
-const E_SOFT = [0.16, 1, 0.3, 1];
 
+// Phases:
+//  count   → animated counter 0 → 100
+//  reveal  → "ENTERING" letter stagger on dark bg
+//  wipe    → dark curtain lifts upward, single orange leading edge
+//  done    → unmounts
 export default function Loader({ onComplete }) {
-  const [count, setCount]   = useState(0);
-  const [phase, setPhase]   = useState("count"); // count | flash | wipe | done
-  const rafRef              = useRef(null);
-  // once the orange panel has animated in, keep it at scaleY:1 — never re-animate
-  const [panelShown, setPanelShown] = useState(false);
+  const [count,  setCount]  = useState(0);
+  const [phase,  setPhase]  = useState("count");
+  const rafRef = useRef(null);
 
-  /* ── lock scroll for entire duration ── */
+  // Lock scroll
   useEffect(() => {
-    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => { document.body.style.overflow = ""; };
   }, []);
 
-  /* ── unlock as soon as wipe starts so hero is ready ── */
+  // Release scroll when wipe starts so hero is ready underneath
   useEffect(() => {
-    if (phase === "wipe") {
-      document.body.style.overflow = "";
-    }
+    if (phase === "wipe") document.body.style.overflow = "";
   }, [phase]);
 
-  /* ── flash → wipe after text has shown ── */
-  useEffect(() => {
-    if (phase !== "flash") return;
-    setPanelShown(true);
-    const t = setTimeout(() => setPhase("wipe"), 600);
-    return () => clearTimeout(t);
-  }, [phase]);
-
-  /* ── counter RAF ── */
+  // Counter RAF — eased, 1600ms
   useEffect(() => {
     if (phase !== "count") return;
     const DURATION = 1600;
@@ -51,11 +60,19 @@ export default function Loader({ onComplete }) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setCount(100);
-        setTimeout(() => setPhase("flash"), 260);
+        // Short pause at 100 before revealing text
+        setTimeout(() => setPhase("reveal"), 320);
       }
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
+  }, [phase]);
+
+  // reveal → wipe after letters have settled (letters take ~0.45 + 7*0.05 = 0.8s)
+  useEffect(() => {
+    if (phase !== "reveal") return;
+    const t = setTimeout(() => setPhase("wipe"), 1050);
+    return () => clearTimeout(t);
   }, [phase]);
 
   return (
@@ -63,143 +80,55 @@ export default function Loader({ onComplete }) {
       {phase !== "done" && (
         <motion.div
           key="loader"
-          style={{ position: "fixed", inset: 0, zIndex: 9000, pointerEvents: "all" }}
+          exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+          style={{
+            position:      "fixed",
+            inset:         0,
+            zIndex:        9000,
+            pointerEvents: "all",
+            background:    BG,
+          }}
         >
 
-          {/* z:1 — black base, always present */}
-          <div style={{ position: "absolute", inset: 0, background: "#0a0a0a", zIndex: 1 }} />
-
-          {/* z:2 — red panel, plain div, only exists during flash phase, no animation = no double-pop */}
-          {phase === "flash" && (
-            <div style={{ position: "absolute", inset: 0, background: ORANGE, zIndex: 2 }} />
-          )}
-
-          {/* z:3 — "ENTERING" text, black on orange, only during flash */}
-          <AnimatePresence>
-            {phase === "flash" && (
-              <motion.div
-                key="entering"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                transition={{ duration: 0.01 }}
-                style={{
-                  position:       "absolute",
-                  inset:          0,
-                  zIndex:         3,
-                  display:        "flex",
-                  flexDirection:  "column",
-                  alignItems:     "center",
-                  justifyContent: "center",
-                  gap:            "0.6rem",
-                  pointerEvents:  "none",
-                }}
-              >
-                {/* Letter-by-letter stagger */}
-                <div style={{ display: "flex", gap: "0.08em", overflow: "hidden" }}>
-                  {"ENTERING".split("").map((char, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ y: "110%", opacity: 0 }}
-                      animate={{ y: "0%", opacity: 1 }}
-                      transition={{
-                        duration: 0.38,
-                        ease:     [0.16, 1, 0.3, 1],
-                        delay:    i * 0.045,
-                      }}
-                      style={{
-                        fontFamily:    "'Barlow Condensed', 'Arial Narrow', sans-serif",
-                        fontWeight:    800,
-                        fontSize:      "clamp(2.5rem, 7vw, 6rem)",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        color:         "#0a0a0a",
-                        userSelect:    "none",
-                        lineHeight:    1,
-                        display:       "block",
-                      }}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </div>
-
-                {/* Thin underline that draws across */}
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.32 }}
-                  style={{
-                    height:          "1.5px",
-                    width:           "100%",
-                    maxWidth:        "clamp(160px, 22vw, 380px)",
-                    background:      "#0a0a0a",
-                    transformOrigin: "left",
-                    opacity:         0.4,
-                  }}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* z:4 — curtain starts orange (matches flash), wipes upward to reveal site */}
-          {phase === "wipe" && (
-            <motion.div
-              initial={{ y: "0%" }}
-              animate={{ y: "-100%" }}
-              transition={{ duration: 0.78, ease: E_SNAP, delay: 0.05 }}
-              onAnimationComplete={() => setPhase("done")}
-              style={{
-                position:   "absolute",
-                inset:      0,
-                background: ORANGE,
-                zIndex:     4,
-              }}
-            />
-          )}
-
-          {/* z:5 — HUD (counter + bar + brand), fades out before flash */}
+          {/* ── HUD layer — counter + progress bar ── */}
           <AnimatePresence>
             {phase === "count" && (
               <motion.div
                 key="hud"
-                exit={{ opacity: 0, transition: { duration: 0.18 } }}
+                exit={{ opacity: 0, y: -6, transition: { duration: 0.35, ease: E } }}
                 style={{
                   position:       "absolute",
                   inset:          0,
-                  zIndex:         5,
+                  zIndex:         2,
                   display:        "flex",
                   flexDirection:  "column",
                   justifyContent: "space-between",
                   padding:        "2.2rem 3rem",
-                  userSelect:     "none",
                   pointerEvents:  "none",
+                  userSelect:     "none",
                 }}
               >
-                {/* Brand top-left */}
+                {/* Brand */}
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.55, ease: E_SOFT }}
+                  transition={{ delay: 0.2, duration: 0.55, ease: E }}
                   style={{ display: "flex", alignItems: "center", gap: "0.55rem" }}
                 >
-                  <span style={{
-                    width: 5, height: 5, borderRadius: "50%",
-                    background: ORANGE, display: "inline-block", flexShrink: 0,
+                  <div style={{
+                    width: 5, height: 5, borderRadius: "50%", background: OR, flexShrink: 0,
                   }} />
                   <span style={{
-                    fontFamily:    "'Geist', system-ui, sans-serif",
-                    fontSize:      "10px",
+                    fontFamily:    "'Barlow Condensed', sans-serif",
+                    fontSize:      10,
                     letterSpacing: "0.28em",
                     textTransform: "uppercase",
-                    color:         ORANGE,
-                    fontWeight:    400,
-                  }}>
-                    Arnav.dev
-                  </span>
+                    color:         `rgba(232,64,12,0.80)`,
+                    fontWeight:    500,
+                  }}>Arnav.dev</span>
                 </motion.div>
 
-                {/* Counter + progress bar bottom */}
+                {/* Counter + bar */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -212,61 +141,168 @@ export default function Loader({ onComplete }) {
                     marginBottom:   "0.55rem",
                   }}>
                     <span style={{
-                      fontFamily:    "'Geist', system-ui, sans-serif",
-                      fontSize:      "9px",
+                      fontFamily:    "'Barlow', sans-serif",
+                      fontWeight:    300,
+                      fontSize:      9,
                       letterSpacing: "0.28em",
                       textTransform: "uppercase",
                       color:         "rgba(234,228,213,0.22)",
-                    }}>
-                      Loading
-                    </span>
+                    }}>Loading</span>
+
+                    {/* Counter — warm orange tint as it approaches 100 */}
                     <span style={{
-                      fontFamily:         "'Geist Mono','JetBrains Mono',monospace",
+                      fontFamily:         "'Barlow Condensed', sans-serif",
+                      fontWeight:         700,
                       fontSize:           "clamp(1.8rem, 4vw, 3rem)",
-                      fontWeight:         300,
-                      letterSpacing:      "0.06em",
-                      color:              count >= 85 ? ORANGE : CREAM,
+                      letterSpacing:      "0.04em",
                       lineHeight:         1,
                       fontVariantNumeric: "tabular-nums",
-                      transition:         "color 0.5s ease",
+                      color:              count >= 80
+                        ? `rgba(232,64,12,${0.55 + (count - 80) / 100})`
+                        : "rgba(234,228,213,0.60)",
+                      transition:         "color 0.4s ease",
                     }}>
                       {String(count).padStart(3, "0")}
                     </span>
                   </div>
 
-                  {/* Bar */}
-                  <div style={{ position: "relative", height: "1px", background: "rgba(234,228,213,0.08)" }}>
-                    <motion.div
-                      style={{
-                        position:        "absolute",
-                        inset:           0,
-                        background:      ORANGE,
-                        transformOrigin: "left",
-                        scaleX:          count / 100,
-                      }}
-                      transition={{ duration: 0.04 }}
-                    />
-                    {/* Tip dot */}
-                    <motion.div
-                      style={{
-                        position:     "absolute",
-                        top:          "50%",
-                        left:         `${count}%`,
-                        transform:    "translate(-50%, -50%)",
-                        width:        5,
-                        height:       5,
-                        borderRadius: "50%",
-                        background:   ORANGE,
-                        boxShadow:    `0 0 10px 3px ${ORANGE}70`,
-                        opacity:      count > 1 ? 1 : 0,
-                      }}
-                      transition={{ duration: 0.04 }}
-                    />
+                  {/* Progress bar — thin, orange fill */}
+                  <div style={{
+                    position:   "relative",
+                    height:     1,
+                    background: "rgba(234,228,213,0.07)",
+                  }}>
+                    <motion.div style={{
+                      position:        "absolute",
+                      inset:           0,
+                      background:      OR,
+                      transformOrigin: "left",
+                      scaleX:          count / 100,
+                    }} />
+                    {/* Glowing tip */}
+                    <motion.div style={{
+                      position:     "absolute",
+                      top:          "50%",
+                      left:         `${count}%`,
+                      transform:    "translate(-50%, -50%)",
+                      width:        4,
+                      height:       4,
+                      borderRadius: "50%",
+                      background:   OR,
+                      boxShadow:    `0 0 8px 3px rgba(232,64,12,0.50)`,
+                      opacity:      count > 2 ? 1 : 0,
+                    }} />
                   </div>
                 </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* ── REVEAL layer — "ENTERING" on dark BG, no orange fill ── */}
+          <AnimatePresence>
+            {phase === "reveal" && (
+              <motion.div
+                key="reveal"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                style={{
+                  position:       "absolute",
+                  inset:          0,
+                  zIndex:         3,
+                  display:        "flex",
+                  flexDirection:  "column",
+                  alignItems:     "center",
+                  justifyContent: "center",
+                  gap:            20,
+                  pointerEvents:  "none",
+                }}
+              >
+                {/* "ENTERING" — letter stagger, cream on dark */}
+                <div style={{ display: "flex", gap: "0.06em", overflow: "hidden" }}>
+                  {"ENTERING".split("").map((char, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ y: "110%", opacity: 0 }}
+                      animate={{ y: "0%", opacity: 1 }}
+                      transition={{
+                        duration: 0.55,
+                        ease:     E,
+                        delay:    i * 0.055,
+                      }}
+                      style={{
+                        fontFamily:    "'Barlow Condensed', sans-serif",
+                        fontWeight:    900,
+                        fontSize:      "clamp(2.4rem, 7vw, 6rem)",
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        // Cream text on dark — no brightness shock
+                        color:         CREAM,
+                        userSelect:    "none",
+                        lineHeight:    1,
+                        display:       "block",
+                      }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </div>
+
+                {/* Thin orange underline that draws in after letters land */}
+                <motion.div
+                  initial={{ scaleX: 0, opacity: 0 }}
+                  animate={{ scaleX: 1, opacity: 1 }}
+                  transition={{ duration: 0.55, ease: E, delay: 0.42 }}
+                  style={{
+                    height:          1,
+                    width:           "clamp(120px, 18vw, 280px)",
+                    background:      `linear-gradient(to right, transparent, ${OR}, transparent)`,
+                    transformOrigin: "center",
+                  }}
+                />
+
+                {/* Small label beneath */}
+                <motion.span
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: E, delay: 0.60 }}
+                  style={{
+                    fontFamily:    "'Barlow', sans-serif",
+                    fontWeight:    300,
+                    fontSize:      10,
+                    letterSpacing: "0.30em",
+                    textTransform: "uppercase",
+                    color:         `rgba(232,64,12,0.55)`,
+                  }}
+                >
+                  Portfolio 2025
+                </motion.span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── WIPE curtain — dark panel lifts upward ──
+              Leading edge: 2px orange line so the "cut" is intentional, not abrupt.
+              Dark curtain = continuity with both the loader BG and hero BG.
+              No orange full-screen fill. ── */}
+          {phase === "wipe" && (
+            <motion.div
+              initial={{ y: "0%" }}
+              animate={{ y: "-100%" }}
+              transition={{ duration: 0.80, ease: E_SNAP, delay: 0.05 }}
+              onAnimationComplete={() => setPhase("done")}
+              style={{
+                position:   "absolute",
+                inset:      0,
+                zIndex:     5,
+                background: BG,
+                // Orange leading edge at the bottom of the curtain
+                // As it lifts, this line sweeps up — signals the reveal
+                boxShadow: `0 2px 0 0 ${OR}, 0 4px 20px 0 rgba(232,64,12,0.25)`,
+              }}
+            />
+          )}
 
         </motion.div>
       )}

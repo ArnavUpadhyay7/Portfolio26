@@ -69,7 +69,7 @@ export default function Landing() {
           <HeroSection visible={heroVisible} />
         </motion.div>
 
-        <div style={{ height: "140vh", pointerEvents: "none" }} />
+        <div style={{ height: "50vh", pointerEvents: "none" }} />
 
         <motion.div
           style={{
