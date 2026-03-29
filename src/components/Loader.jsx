@@ -19,7 +19,7 @@ export default function Loader({ onComplete }) {
   }, []);
 
   // Release scroll when wipe starts so hero is ready underneath
-  useEffect(() => {
+  useEffect(() => { 
     if (phase === "wipe") document.body.style.overflow = "";
   }, [phase]);
 
