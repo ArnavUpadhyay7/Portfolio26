@@ -43,7 +43,7 @@ const SECTIONS = [
     title:   "Tools",
     role:    "Workflow & DX",
     summary: "Developer experience as a first-class concern. Fast builds, clean CI/CD, zero-friction handoffs.",
-    stack:   ["Git / GitHub", "Linux", "Postman", "Vercel", "Render"],
+    stack:   ["Git / GitHub", "Linux", "Postman", "Hoppscotch", "Vercel", "Render"],
     color:   "#059669",
     glow:    "rgba(5,150,105,",
     bg:      "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, rgba(0,0,0,0) 70%)",
