@@ -1,39 +1,3 @@
-/**
- * SkillsSection.jsx — v3 Fixed
- *
- * Root-cause fixes vs v2:
- *
- * 1. SCROLL-PAST BUG
- *    Problem: PIN_H was set with a default `vh = 900` before the real
- *    viewport height was measured. React renders the section with the
- *    wrong height on first paint, the sticky container height doesn't
- *    match, and framer-motion's useScroll bakes in the wrong scroll
- *    range before the resize effect fires.
- *    Fix: initialise `vh` from window.innerHeight synchronously using
- *    a lazy useState initialiser (() => window?.innerHeight ?? 900).
- *    The section height and sticky wrapper are always in sync from
- *    the very first render.
- *
- * 2. CONTENT VISIBILITY WINDOW TOO NARROW
- *    Old timing: content fades in at 0.60 and out at 0.92 — only 32%
- *    of a section's progress range. With 4 sections over the full 0→1
- *    range, each section-local progress runs at 4× speed meaning content
- *    was only readable for ~8% of total scroll distance (~half a screen).
- *    Fix: content in at 0.38, hold until 0.88, out at 0.96.
- *    Also bumped section multiplier: 2.8vh per section (was 2vh) giving
- *    more physical scroll distance for the bloom + content to breathe.
- *
- * 3. "STACK BREAKDOWN" HEADER
- *    Old: fontSize 9, opacity 0.15 — invisible.
- *    Fix: Replaced with a proper styled section header row with the
- *    title in large Barlow Condensed, the section number, and a live
- *    animated active-section indicator. Highly visible, anchored to top.
- *
- * 4. SECTION LABEL IN CONTENT
- *    Old: `{section.label} — 0{N}` hardcoded "04" always. Now reads
- *    correctly as e.g. "01 — 04".
- */
-
 import { useRef, useState, useEffect } from "react";
 import {
   motion,
@@ -55,10 +19,11 @@ const SECTIONS = [
     title:   "Frontend",
     role:    "Interface Engineering",
     summary: "Pixel-precise interfaces with cinematic motion. Design systems, component architecture, micro-interaction obsession.",
-    stack:   ["React", "Next.js", "TypeScript", "Tailwind", "Framer Motion", "Lenis"],
+    stack:   ["React.js", "Next.js", "JavaScript", "Redux Toolkit", "Zustand", "Tailwind", "Framer Motion", "Lenis", "AceternityUI"],
     color:   "#E8400C",
     glow:    "rgba(232,64,12,",
-    bg:      "rgba(232,64,12,0.04)",
+    bg:      "radial-gradient(circle at center, rgba(232,64,12,0.12) 0%, rgba(0,0,0,0) 70%)",
+    shadow:  "0 0 40px rgba(232,64,12,0.25)",
   },
   {
     id:      "backend",
@@ -66,55 +31,37 @@ const SECTIONS = [
     title:   "Backend",
     role:    "Systems & APIs",
     summary: "Scalable server-side architecture. Clean REST APIs, efficient data pipelines, containerised deployments.",
-    stack:   ["Node.js", "Express", "MongoDB", "PostgreSQL", "Docker"],
-    color:   "#6366F1",
-    glow:    "rgba(99,102,241,",
-    bg:      "rgba(99,102,241,0.04)",
-  },
-  {
-    id:      "realtime",
-    label:   "03",
-    title:   "Realtime",
-    role:    "Live Experiences",
-    summary: "Sub-50ms synchronised experiences. Spatial audio, presence systems, and collaborative environments at scale.",
-    stack:   ["Socket.io", "WebRTC", "LiveKit", "Redis Pub/Sub", "WebSockets"],
-    color:   "#10B981",
-    glow:    "rgba(16,185,129,",
-    bg:      "rgba(16,185,129,0.04)",
+    stack:   ["Node.js", "Express.js", "MongoDB", "REST APIs", "WebSocket (socket.io)", "WebRTC (LiveKit)"],
+    color:   "#4F46E5",
+    glow:    "rgba(79,70,229,",
+    bg:      "radial-gradient(circle at center, rgba(79,70,229,0.12) 0%, rgba(0,0,0,0) 70%)",
+    shadow:  "0 0 40px rgba(79,70,229,0.25)",
   },
   {
     id:      "tools",
-    label:   "04",
-    title:   "Tooling",
+    label:   "03",
+    title:   "Tools",
     role:    "Workflow & DX",
     summary: "Developer experience as a first-class concern. Fast builds, clean CI/CD, zero-friction handoffs.",
-    stack:   ["Git / GitHub", "Linux", "Postman", "Figma", "Vite", "GitHub Actions"],
-    color:   "#94A3B8",
-    glow:    "rgba(148,163,184,",
-    bg:      "rgba(148,163,184,0.04)",
+    stack:   ["Git / GitHub", "Linux", "Postman", "Vercel", "Render"],
+    color:   "#059669",
+    glow:    "rgba(5,150,105,",
+    bg:      "radial-gradient(circle at center, rgba(5,150,105,0.12) 0%, rgba(0,0,0,0) 70%)",
+    shadow:  "0 0 40px rgba(5,150,105,0.25)",
   },
 ];
 
 const N = SECTIONS.length;
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   BLOOM SVG — unchanged animation logic
-───────────────────────────────────────────────────────────────────────────── */
 function SectionBloom({ progress, color }) {
   const coreR          = useTransform(progress, [0, 0.08, 0.40, 0.55, 0.85, 1], [0, 18, 24, 20, 20, 0]);
   const coreOpacity    = useTransform(progress, [0, 0.06, 0.55, 0.85, 1],        [0, 1,  1,  1,  0]);
   const coreScale      = useTransform(progress, [0, 0.15, 0.40, 0.55, 0.85, 1], [0, 0.4, 1.35, 1, 1, 0]);
   const coreGlowR      = useTransform(progress, [0, 0.08, 0.40, 0.55, 0.85, 1], [0, 60, 100, 80, 80, 0]);
   const coreGlowOp     = useTransform(progress, [0, 0.08, 0.40, 0.55, 0.85, 1], [0, 0.5, 0.22, 0.18, 0.18, 0]);
-  const burstR         = useTransform(progress, [0.12, 0.40, 0.60],              [20, 220, 280]);
-  const burstOp        = useTransform(progress, [0.12, 0.30, 0.50, 0.65],       [0, 0.55, 0.15, 0]);
-  const burstW         = useTransform(progress, [0.12, 0.35],                    [3, 0.5]);
-  const burst2R        = useTransform(progress, [0.18, 0.50, 0.70],              [20, 310, 370]);
-  const burst2Op       = useTransform(progress, [0.18, 0.36, 0.55, 0.70],       [0, 0.30, 0.08, 0]);
-  const midRingScale   = useTransform(progress, [0.20, 0.45, 0.85, 1.0], [0.2, 1, 1, 0]);
-  const midRingOp      = useTransform(progress, [0.20, 0.40, 0.80, 1.0], [0, 0.18, 0.12, 0]);
-  const outerRingScale = useTransform(progress, [0.30, 0.55, 0.85, 1.0], [0.3, 1, 1, 0]);
-  const outerRingOp    = useTransform(progress, [0.30, 0.50, 0.80, 1.0], [0, 0.08, 0.06, 0]);
+
+  // burstR, burstOp, burstW, burst2R, burst2Op — REMOVED
+  // midRingScale, outerRingScale — REMOVED
 
   const PRIMARY_ANGLES   = [0, 60, 120, 180, 240, 300];
   const SECONDARY_ANGLES = [30, 90, 150, 210, 270, 330];
@@ -158,7 +105,7 @@ function SectionBloom({ progress, color }) {
     }}>
       <svg
         viewBox="-400 -400 800 800"
-        style={{ width: "min(88vw, 80vh)", height: "min(88vw, 80vh)", overflow: "visible", flexShrink: 0 }}
+        style={{ width: "min(100vw, 100vh)", height: "min(100vw, 100vh)", overflow: "visible", flexShrink: 0 }}
       >
         <defs>
           <filter id={`core-glow-${colorKey}`} x="-200%" y="-200%" width="500%" height="500%">
@@ -177,14 +124,7 @@ function SectionBloom({ progress, color }) {
           </radialGradient>
         </defs>
 
-        <motion.circle cx={0} cy={0} r={340} fill="none" stroke={color} strokeWidth={0.5}
-          style={{ scale: outerRingScale, opacity: outerRingOp }} />
-        <motion.circle cx={0} cy={0} r={240} fill="none" stroke={color} strokeWidth={0.8} strokeDasharray="6 14"
-          style={{ scale: midRingScale, opacity: midRingOp }} />
-        <motion.circle cx={0} cy={0} fill="none" stroke={color} strokeWidth={1}
-          style={{ r: burst2R, opacity: burst2Op }} />
-        <motion.circle cx={0} cy={0} fill="none" stroke={color}
-          style={{ r: burstR, strokeWidth: burstW, opacity: burstOp }} />
+        {/* ── all ring/burst circles REMOVED ── */}
 
         {tertiaryPetals.map(({ deg, scale, opacity }) => (
           <motion.g key={`t${deg}`} style={{ rotate: deg }}>
@@ -231,12 +171,6 @@ function SectionBloom({ progress, color }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SECTION CONTENT
-   FIX: content in at 0.38 (was 0.60) — content is now visible for 50%
-   of the section's scroll range instead of 32%. Also removed the early
-   exit (was 0.92 → now 0.94) giving more dwell time before wipe.
-───────────────────────────────────────────────────────────────────────────── */
 function SectionContent({ section, progress }) {
   const opacity = useTransform(progress, [0.38, 0.50, 0.86, 0.96], [0, 1, 1, 0]);
   const y       = useTransform(progress, [0.38, 0.50, 0.86, 0.96], [28, 0, 0, -14]);
@@ -262,7 +196,6 @@ function SectionContent({ section, progress }) {
         width:     "min(520px, 92vw)",
         padding:   "0 16px",
       }}>
-        {/* Label — e.g. "01 — 04" */}
         <p style={{
           fontFamily:    "'Geist', sans-serif",
           fontWeight:    300,
@@ -275,7 +208,6 @@ function SectionContent({ section, progress }) {
           {section.label} — 0{N}
         </p>
 
-        {/* Title */}
         <h2 style={{
           fontFamily:    "'Barlow Condensed', sans-serif",
           fontWeight:    800,
@@ -289,7 +221,6 @@ function SectionContent({ section, progress }) {
           {section.title}
         </h2>
 
-        {/* Role */}
         <div style={{
           display: "flex", alignItems: "center", justifyContent: "center",
           gap: 8, marginBottom: 14,
@@ -308,7 +239,6 @@ function SectionContent({ section, progress }) {
           <div style={{ width: 2, height: 12, background: section.color, borderRadius: 1, flexShrink: 0 }} />
         </div>
 
-        {/* Description */}
         <p style={{
           fontFamily: "'Geist', sans-serif",
           fontWeight: 300,
@@ -320,7 +250,6 @@ function SectionContent({ section, progress }) {
           {section.summary}
         </p>
 
-        {/* Tech pills */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6 }}>
           {section.stack.map((tech, i) => (
             <motion.span
@@ -348,9 +277,6 @@ function SectionContent({ section, progress }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SECTION SLIDE
-───────────────────────────────────────────────────────────────────────────── */
 function SectionSlide({ section, progress }) {
   return (
     <div style={{ position: "absolute", inset: 0 }}>
@@ -364,7 +290,6 @@ function SectionSlide({ section, progress }) {
       <SectionBloom progress={progress} color={section.color} />
       <SectionContent section={section} progress={progress} />
 
-      {/* Bottom breadcrumb */}
       <motion.div style={{
         position:      "absolute",
         bottom:        24,
@@ -384,7 +309,7 @@ function SectionSlide({ section, progress }) {
           fontSize:      9,
           letterSpacing: "0.32em",
           textTransform: "uppercase",
-          color:         "rgba(234,228,213,0.20)",
+          color:         "white",
           whiteSpace:    "nowrap",
         }}>
           {section.label} / 0{N} — {section.title}
@@ -395,9 +320,6 @@ function SectionSlide({ section, progress }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   PROGRESS DOTS
-───────────────────────────────────────────────────────────────────────────── */
 function SectionDots({ active }) {
   return (
     <div style={{
@@ -427,10 +349,6 @@ function SectionDots({ active }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   SECTION HEADER — replaces the invisible 9px "Stack Breakdown" label.
-   Shows the section title + active skill name in a proper top bar.
-───────────────────────────────────────────────────────────────────────────── */
 function SectionHeader({ active }) {
   const s = SECTIONS[active];
   return (
@@ -446,15 +364,14 @@ function SectionHeader({ active }) {
       alignItems:     "baseline",
       justifyContent: "space-between",
     }}>
-      {/* Left: "Stack Breakdown" in big Barlow */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{
           fontFamily:    "'Barlow Condensed', sans-serif",
           fontWeight:    700,
           fontSize:      "clamp(13px, 2.2vw, 18px)",
           letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color:         "rgba(234,228,213,0.55)",
+          color:         "rgba(234,228,213,0.65)",
         }}>
           Stack
         </span>
@@ -468,11 +385,8 @@ function SectionHeader({ active }) {
         }}>
           Breakdown
         </span>
-        {/* Accent dot */}
-        <div style={{ width: 5, height: 5, borderRadius: "50%", background: s.color, marginBottom: 2, transition: "background 0.35s ease" }} />
       </div>
 
-      {/* Right: active skill name */}
       <motion.span
         key={s.id}
         initial={{ opacity: 0, y: -6 }}
@@ -494,16 +408,9 @@ function SectionHeader({ active }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   MAIN
-   FIX: lazy useState initialiser so `vh` is correct on the FIRST render.
-   No more async mismatch between PIN_H and the sticky wrapper height.
-   MULTIPLIER bumped 2 → 2.8 so each section has more scroll room.
-───────────────────────────────────────────────────────────────────────────── */
 export default function SkillsSection() {
   const sectionRef = useRef(null);
 
-  // ── FIX: read vh synchronously so first render is correct ──────────────────
   const [vh, setVh] = useState(() =>
     typeof window !== "undefined"
       ? (window.visualViewport?.height ?? window.innerHeight)
@@ -523,12 +430,6 @@ export default function SkillsSection() {
     };
   }, []);
 
-  /*
-   * FIX: 2.8 viewport heights per section (was 2).
-   * More scroll room = bloom and content have enough distance to
-   * animate through their full keyframe ranges before the user
-   * naturally reaches the next section.
-   */
   const MULTIPLIER = 2.8;
   const PIN_H = vh * N * MULTIPLIER;
 
@@ -560,7 +461,6 @@ export default function SkillsSection() {
         height:   vh,
         overflow: "clip",
       }}>
-        {/* Top/bottom vignette */}
         <div style={{
           position:      "absolute",
           inset:         0,
@@ -570,8 +470,6 @@ export default function SkillsSection() {
             linear-gradient(to bottom, ${BG} 0%, transparent 10%),
             linear-gradient(to top,    ${BG} 0%, transparent 8%)
           `,
-          /* pointer-events off so the header below is still visible */
-          pointerEvents: "none",
         }} />
 
         {SECTIONS.map((s, i) => (
@@ -583,8 +481,6 @@ export default function SkillsSection() {
         ))}
 
         <SectionDots active={active} />
-
-        {/* ── NEW: visible, well-styled header ── */}
         <SectionHeader active={active} />
       </div>
     </section>

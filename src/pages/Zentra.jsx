@@ -1,8 +1,3 @@
-/**
- * Zentra.jsx — Case Study
- * 2D spatial world / virtual office platform
- */
-
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -359,7 +354,7 @@ export default function Zentra() {
         </Fade>
         <Fade delay={0.08}>
           <button onClick={() => navigate("/elevate")} className="group w-full text-left">
-            <div className="relative overflow-hidden rounded-sm p-10 transition-colors duration-500 hover:bg-white/[0.02]"
+            <div className="relative overflow-hidden rounded-sm p-10 transition-colors duration-500 hover:bg-white/2"
               style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,0.06)" }}>
               <ImgPlaceholder label="Elevate cover image" aspect="21/6" />
               <div className="mt-8 flex items-end justify-between">
