@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { usePageTransition } from "../components/PageTransition";
 
 const CREAM  = "#EAE4D5";
 const ORANGE = "#E8400C";
@@ -100,6 +101,7 @@ function Rule() {
 
 export default function Zentra() {
   const navigate = useNavigate();
+  const { navigateWithTransition } = usePageTransition();
 
   return (
     <div className="min-h-screen w-full bg-[#0a0a0a]" style={{ fontFamily: "'Geist', sans-serif", color: CREAM }}>
@@ -353,7 +355,7 @@ export default function Zentra() {
           <p className="text-[9px] tracking-[0.3em] uppercase mb-8" style={{ color: "rgba(255,255,255,0.18)" }}>Next Project</p>
         </Fade>
         <Fade delay={0.08}>
-          <button onClick={() => navigate("/elevate")} className="group w-full text-left">
+          <button onClick={() => navigateWithTransition("/elevate")} className="group w-full text-left">
             <div className="relative overflow-hidden rounded-sm p-10 transition-colors duration-500 hover:bg-white/2"
               style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,0.06)" }}>
               <ImgPlaceholder label="Elevate cover image" aspect="21/6" />

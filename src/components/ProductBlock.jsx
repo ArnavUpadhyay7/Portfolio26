@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { usePageTransition } from "./PageTransition";
 
 const CREAM = "#EAE4D5";
 const E = [0.16, 1, 0.3, 1];
@@ -9,7 +9,7 @@ export function ProductBlock({ product, index }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [hovered, setHovered] = useState(false);
-  const navigate = useNavigate();
+  const { navigateWithTransition } = usePageTransition();
 
   const isEven = index % 2 === 0;
   // Route: /elevate or /zentra directly
@@ -20,7 +20,7 @@ export function ProductBlock({ product, index }) {
       ref={ref}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => navigate(route)}
+      onClick={() => navigateWithTransition(route)}
       initial={{ opacity: 0, y: 48 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.85, ease: E, delay: index * 0.08 }}
@@ -121,7 +121,7 @@ export function ProductBlock({ product, index }) {
             whileTap={{ scale: 0.97 }}
             onClick={(e) => {
               e.stopPropagation();
-              navigate(route);
+              navigateWithTransition(route);
             }}
             className="self-start flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase py-3 px-6 rounded-full transition-all duration-300"
             style={{

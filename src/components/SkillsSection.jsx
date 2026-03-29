@@ -31,7 +31,7 @@ const SECTIONS = [
     title:   "Backend",
     role:    "Systems & APIs",
     summary: "Scalable server-side architecture. Clean REST APIs, efficient data pipelines, containerised deployments.",
-    stack:   ["Node.js", "Express.js", "MongoDB", "REST APIs", "WebSocket (socket.io)", "WebRTC (LiveKit)"],
+    stack:   ["Node.js", "Express.js", "MongoDB", "REST APIs", "WebSocket (socket.io)", "WebRTC (LiveKit)", "Razorpay (Payments Integration)"],
     color:   "#4F46E5",
     glow:    "rgba(79,70,229,",
     bg:      "radial-gradient(circle at center, rgba(79,70,229,0.12) 0%, rgba(0,0,0,0) 70%)",
