@@ -32,25 +32,26 @@ function GlobalStyles() {
 }
 
 export default function Landing() {
-  const [heroVisible, setHeroVisible] = useState(false);
+  const alreadyLoaded = sessionStorage.getItem("hasLoaded");
+
+  const [showLoader, setShowLoader] = useState(() => !alreadyLoaded);
+  const [heroVisible, setHeroVisible] = useState(() => !!alreadyLoaded);
 
   const { scrollYProgress } = useScroll();
-
   const heroScale = useTransform(scrollYProgress, [0, 0.25], [1, 0.94]);
   const heroOpacity = useTransform(scrollYProgress, [0.18, 0.26], [1, 0]);
-
-  // Products panel slides up — unchanged
   const productsY = useTransform(scrollYProgress, [0, 0.22], ["100vh", "0vh"]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setHeroVisible(true), 3500);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleLoaderComplete = () => {
+    sessionStorage.setItem("hasLoaded", "true");
+    setShowLoader(false);
+    setHeroVisible(true);
+  };
 
   return (
     <div className="bg-[#0a0a0a] w-full">
       <GlobalStyles />
-      <Loader onComplete={() => setHeroVisible(true)} />
+      {showLoader && <Loader onComplete={handleLoaderComplete} />}
 
       <main className="relative w-full">
         <motion.div

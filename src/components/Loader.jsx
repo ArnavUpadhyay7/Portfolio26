@@ -1,19 +1,3 @@
-/**
- * Loader.jsx — Redesigned
- *
- * Old sequence: count → full orange flash (jarring) → wipe
- * New sequence: count → cinematic text reveal on dark BG → slim orange bar wipe → done
- *
- * Key UX fixes:
- * - Zero full-screen orange flash. Orange is accent-only throughout.
- * - "ENTERING" reveal happens on the dark background — no brightness shock.
- * - Wipe curtain is dark (#0a0a0a) with a single leading orange edge line,
- *   not a solid orange panel — preserves visual continuity with the hero beneath.
- * - Counter fades out gracefully into the text reveal (crossfade, not cut).
- * - All transitions use the site's unified easing [0.16, 1, 0.3, 1].
- * - Scroll locked for entire pre-wipe duration, released as wipe starts.
- */
-
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,11 +7,6 @@ const CREAM = "rgba(234,228,213,1)";
 const E     = [0.16, 1, 0.3, 1];
 const E_SNAP = [0.76, 0, 0.24, 1];
 
-// Phases:
-//  count   → animated counter 0 → 100
-//  reveal  → "ENTERING" letter stagger on dark bg
-//  wipe    → dark curtain lifts upward, single orange leading edge
-//  done    → unmounts
 export default function Loader({ onComplete }) {
   const [count,  setCount]  = useState(0);
   const [phase,  setPhase]  = useState("count");
@@ -60,7 +39,6 @@ export default function Loader({ onComplete }) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setCount(100);
-        // Short pause at 100 before revealing text
         setTimeout(() => setPhase("reveal"), 320);
       }
     };
@@ -68,7 +46,7 @@ export default function Loader({ onComplete }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [phase]);
 
-  // reveal → wipe after letters have settled (letters take ~0.45 + 7*0.05 = 0.8s)
+  // reveal → wipe
   useEffect(() => {
     if (phase !== "reveal") return;
     const t = setTimeout(() => setPhase("wipe"), 1050);
@@ -89,8 +67,6 @@ export default function Loader({ onComplete }) {
             background:    BG,
           }}
         >
-
-          {/* ── HUD layer — counter + progress bar ── */}
           <AnimatePresence>
             {phase === "count" && (
               <motion.div
@@ -108,7 +84,6 @@ export default function Loader({ onComplete }) {
                   userSelect:     "none",
                 }}
               >
-                {/* Brand */}
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -128,7 +103,6 @@ export default function Loader({ onComplete }) {
                   }}>Arnav.dev</span>
                 </motion.div>
 
-                {/* Counter + bar */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -148,8 +122,6 @@ export default function Loader({ onComplete }) {
                       textTransform: "uppercase",
                       color:         "rgba(234,228,213,0.22)",
                     }}>Loading</span>
-
-                    {/* Counter — warm orange tint as it approaches 100 */}
                     <span style={{
                       fontFamily:         "'Barlow Condensed', sans-serif",
                       fontWeight:         700,
@@ -166,12 +138,7 @@ export default function Loader({ onComplete }) {
                     </span>
                   </div>
 
-                  {/* Progress bar — thin, orange fill */}
-                  <div style={{
-                    position:   "relative",
-                    height:     1,
-                    background: "rgba(234,228,213,0.07)",
-                  }}>
+                  <div style={{ position: "relative", height: 1, background: "rgba(234,228,213,0.07)" }}>
                     <motion.div style={{
                       position:        "absolute",
                       inset:           0,
@@ -179,7 +146,6 @@ export default function Loader({ onComplete }) {
                       transformOrigin: "left",
                       scaleX:          count / 100,
                     }} />
-                    {/* Glowing tip */}
                     <motion.div style={{
                       position:     "absolute",
                       top:          "50%",
@@ -198,7 +164,6 @@ export default function Loader({ onComplete }) {
             )}
           </AnimatePresence>
 
-          {/* ── REVEAL layer — "ENTERING" on dark BG, no orange fill ── */}
           <AnimatePresence>
             {phase === "reveal" && (
               <motion.div
@@ -219,25 +184,19 @@ export default function Loader({ onComplete }) {
                   pointerEvents:  "none",
                 }}
               >
-                {/* "ENTERING" — letter stagger, cream on dark */}
                 <div style={{ display: "flex", gap: "0.06em", overflow: "hidden" }}>
                   {"ENTERING".split("").map((char, i) => (
                     <motion.span
                       key={i}
                       initial={{ y: "110%", opacity: 0 }}
                       animate={{ y: "0%", opacity: 1 }}
-                      transition={{
-                        duration: 0.55,
-                        ease:     E,
-                        delay:    i * 0.055,
-                      }}
+                      transition={{ duration: 0.55, ease: E, delay: i * 0.055 }}
                       style={{
                         fontFamily:    "'Barlow Condensed', sans-serif",
                         fontWeight:    900,
                         fontSize:      "clamp(2.4rem, 7vw, 6rem)",
                         letterSpacing: "0.06em",
                         textTransform: "uppercase",
-                        // Cream text on dark — no brightness shock
                         color:         CREAM,
                         userSelect:    "none",
                         lineHeight:    1,
@@ -249,7 +208,6 @@ export default function Loader({ onComplete }) {
                   ))}
                 </div>
 
-                {/* Thin orange underline that draws in after letters land */}
                 <motion.div
                   initial={{ scaleX: 0, opacity: 0 }}
                   animate={{ scaleX: 1, opacity: 1 }}
@@ -262,7 +220,6 @@ export default function Loader({ onComplete }) {
                   }}
                 />
 
-                {/* Small label beneath */}
                 <motion.span
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -282,10 +239,6 @@ export default function Loader({ onComplete }) {
             )}
           </AnimatePresence>
 
-          {/* ── WIPE curtain — dark panel lifts upward ──
-              Leading edge: 2px orange line so the "cut" is intentional, not abrupt.
-              Dark curtain = continuity with both the loader BG and hero BG.
-              No orange full-screen fill. ── */}
           {phase === "wipe" && (
             <motion.div
               initial={{ y: "0%" }}
@@ -297,13 +250,10 @@ export default function Loader({ onComplete }) {
                 inset:      0,
                 zIndex:     5,
                 background: BG,
-                // Orange leading edge at the bottom of the curtain
-                // As it lifts, this line sweeps up — signals the reveal
                 boxShadow: `0 2px 0 0 ${OR}, 0 4px 20px 0 rgba(232,64,12,0.25)`,
               }}
             />
           )}
-
         </motion.div>
       )}
     </AnimatePresence>
