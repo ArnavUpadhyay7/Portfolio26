@@ -1,16 +1,14 @@
-# React + Vite
+About this portfolio -
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This isn’t the typical recruiter friendly portfolio. 
+This is an experimental portfolio (creativity over convention).
 
-Currently, two official plugins are available:
+I’ve always found most portfolios to be repetitive and template-driven — so instead of following that path, I built this to push my limits as a frontend developer.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Tech Stack used - 
+Frontend: React
+Styling: Tailwind CSS
+Animations: Framer Motion
+Smooth Scroll: Lenis
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+I feel like a portfolio (especially as a frontend developer) shouldn’t just tell people you’re good, it should make them feel it.
