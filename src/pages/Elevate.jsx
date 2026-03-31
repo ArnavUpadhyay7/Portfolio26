@@ -1,8 +1,15 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import elevateVideo from "../assets/videos/Elevate_Main.mp4";
+import player_profile from "../assets/elevateImages/player_profile.png";
+import player_review from "../assets/elevateImages/player_review.png";
+import find_coach from "../assets/elevateImages/find_coach.png";
+import elevate_home from "../assets/elevateImages/elevate_home.png";
+import player_review_open from "../assets/elevateImages/player_review_open.png";
+import realtime_chat from "../assets/elevateImages/realtime_chat.png";
+import coach_review from "../assets/elevateImages/coach_review.png";
 
 const CREAM = "#EAE4D5";
 const ORANGE = "#E8400C";
@@ -12,6 +19,18 @@ function useFade(margin = "-60px") {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin });
   return { ref, inView };
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
 }
 
 function Label({ children }) {
@@ -60,30 +79,6 @@ function Body({ children }) {
   );
 }
 
-function VideoPlaceholder({ label = "Video placeholder", tall = false }) {
-  return (
-    <div
-      className="w-full flex items-center justify-center rounded-sm overflow-hidden"
-      style={{
-        aspectRatio: tall ? "4/3" : "16/9",
-        background: "#111",
-        border: "1px solid rgba(255,255,255,0.06)",
-      }}>
-      <div className="flex flex-col items-center gap-3 opacity-30">
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="19" stroke={CREAM} strokeWidth="1" />
-          <polygon points="16,13 30,20 16,27" fill={CREAM} />
-        </svg>
-        <span
-          className="text-[9px] tracking-[0.3em] uppercase"
-          style={{ fontFamily: "'Geist', sans-serif", color: CREAM }}>
-          {label}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function ImgPlaceholder({ label = "Image placeholder", aspect = "16/9" }) {
   return (
     <div
@@ -98,6 +93,19 @@ function ImgPlaceholder({ label = "Image placeholder", aspect = "16/9" }) {
         style={{ fontFamily: "'Geist', sans-serif", color: CREAM }}>
         {label}
       </span>
+    </div>
+  );
+}
+
+function ScreenImg({ src, alt }) {
+  return (
+    <div
+      className="w-full rounded-sm overflow-hidden"
+      style={{
+        border: "1px solid rgba(255,255,255,0.06)",
+        background: "#0e0e0e",
+      }}>
+      <img src={src} alt={alt} className="w-full h-full object-cover block" />
     </div>
   );
 }
@@ -124,26 +132,19 @@ function Rule() {
       initial={{ scaleX: 0 }}
       animate={inView ? { scaleX: 1 } : {}}
       transition={{ duration: 1.0, ease: E }}
-      className="h-px w-full origin-left my-20 mx-10 lg:mx-20"
-      style={{
-        background: "rgba(255,255,255,0.07)",
-        width: "calc(100% - 5rem)",
-      }}
+      className="h-px origin-left my-16 sm:my-20 mx-6 sm:mx-10 lg:mx-20"
+      style={{ background: "rgba(255,255,255,0.07)" }}
     />
   );
 }
 
-// ── Scroll-driven hero video ─────────────────────────────────────────────────
 function HeroVideo() {
   const containerRef = useRef(null);
-
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
-
-  // Subtle scale: 0.72 → 1.0 (Duo Studio feel, not dramatic)
-  const scale  = useTransform(scrollYProgress, [0, 0.75], [0.72, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.75], [0.78, 1]);
   const radius = useTransform(scrollYProgress, [0, 0.75], [14, 0]);
   const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
 
@@ -153,24 +154,18 @@ function HeroVideo() {
         style={{
           position: "sticky",
           top: 0,
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          height: "100svh",
           overflow: "hidden",
-        }}
-      >
-        {/* Video card */}
+        }}>
         <motion.div
           style={{
             scale,
             borderRadius: radius,
-            width: "100%",
-            height: "100%",
+            position: "absolute",
+            inset: 0,
             overflow: "hidden",
             willChange: "transform",
-          }}
-        >
+          }}>
           <video
             src={elevateVideo}
             autoPlay
@@ -181,27 +176,26 @@ function HeroVideo() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              objectPosition: "center center",
               display: "block",
             }}
           />
         </motion.div>
 
-        {/* Scroll hint */}
         <motion.div
           style={{
             opacity: scrollHintOpacity,
             position: "absolute",
-            bottom: "2rem",
+            bottom: "1.75rem",
             left: "50%",
             x: "-50%",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "0.5rem",
+            gap: "0.4rem",
             pointerEvents: "none",
             zIndex: 10,
-          }}
-        >
+          }}>
           <span
             style={{
               fontFamily: "'Geist', sans-serif",
@@ -210,8 +204,7 @@ function HeroVideo() {
               textTransform: "uppercase",
               color: `${CREAM}55`,
               fontWeight: 300,
-            }}
-          >
+            }}>
             Scroll
           </span>
           <motion.svg
@@ -220,8 +213,7 @@ function HeroVideo() {
             viewBox="0 0 10 6"
             fill="none"
             animate={{ y: [0, 3, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          >
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}>
             <path
               d="M1 1L5 5L9 1"
               stroke={`${CREAM}45`}
@@ -236,9 +228,77 @@ function HeroVideo() {
   );
 }
 
+function MobileHeroCover() {
+  return (
+    <Fade>
+      <div
+        className="mx-6 mt-2 mb-4 rounded-xl overflow-hidden"
+        style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+        <img src={elevate_home} alt="Elevate Home" className="w-full block" />
+      </div>
+    </Fade>
+  );
+}
+
+// Feature row: alternates image left/right on desktop, always stacks on mobile
+function FeatureRow({ label, heading, body, img, alt, imgFirst = false, caption }) {
+  return (
+    <section className="px-6 sm:px-10 lg:px-20 mb-16 sm:mb-24">
+      <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+        {/* Text — always first on mobile, conditionally second on desktop */}
+        <Fade className={imgFirst ? "lg:order-2" : ""}>
+          <Label>{label}</Label>
+          <SectionHeading>{heading}</SectionHeading>
+          <Body>{body}</Body>
+        </Fade>
+
+        {/* Image — always second on mobile, conditionally first on desktop */}
+        <Fade delay={0.1} className={`flex flex-col gap-2 ${imgFirst ? "lg:order-1" : ""}`}>
+          <ScreenImg src={img} alt={alt} />
+          {caption && (
+            <p className="text-[9px] tracking-[0.2em] uppercase opacity-20"
+              style={{ fontFamily: "'Geist', sans-serif" }}>{caption}</p>
+          )}
+        </Fade>
+
+      </div>
+    </section>
+  );
+}
+
+// Inline feature list items with dot separator
+function FeatureList({ items }) {
+  return (
+    <ul className="mt-8 flex flex-col gap-3">
+      {items.map((item, i) => (
+        <Fade key={i} delay={i * 0.06}>
+          <li className="flex items-start gap-3">
+            <span
+              className="mt-[0.35rem] shrink-0 w-[5px] h-[5px] rounded-full"
+              style={{ background: `${ORANGE}70` }}
+            />
+            <span
+              style={{
+                fontFamily: "'Geist', sans-serif",
+                fontWeight: 300,
+                fontSize: "0.9rem",
+                color: "rgba(234,228,213,0.55)",
+                lineHeight: 1.7,
+              }}>
+              {item}
+            </span>
+          </li>
+        </Fade>
+      ))}
+    </ul>
+  );
+}
+
 export default function Elevate() {
   const navigate = useNavigate();
   const { navigateWithTransition } = usePageTransition();
+  const isMobile = useIsMobile();
 
   return (
     <div
@@ -251,7 +311,7 @@ export default function Elevate() {
 
       {/* NAV */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 lg:px-20 py-6"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 sm:px-10 lg:px-20 py-5 sm:py-6"
         style={{
           background: "rgba(10,10,10,0.9)",
           backdropFilter: "blur(16px)",
@@ -271,17 +331,17 @@ export default function Elevate() {
       </nav>
 
       {/* HERO */}
-      <section className="px-10 lg:px-20 pt-40 pb-16">
+      <section className="px-6 sm:px-10 lg:px-20 pt-28 sm:pt-36 lg:pt-40 pb-12 sm:pb-16">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: E, delay: 0.1 }}
-          className="text-[10px] tracking-[0.4em] uppercase mb-8"
+          className="text-[10px] tracking-[0.4em] uppercase mb-6 sm:mb-8"
           style={{ color: `${ORANGE}70`, fontWeight: 300 }}>
-          Product · 2026
+          Product · 2025
         </motion.p>
 
-        <div className="overflow-hidden mb-6">
+        <div className="overflow-hidden mb-4 sm:mb-6">
           <motion.h1
             initial={{ y: "110%" }}
             animate={{ y: 0 }}
@@ -289,7 +349,7 @@ export default function Elevate() {
             style={{
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
-              fontSize: "clamp(4.5rem, 13vw, 12rem)",
+              fontSize: "clamp(3.5rem, 13vw, 12rem)",
               lineHeight: 0.88,
               letterSpacing: "-0.03em",
               textTransform: "uppercase",
@@ -303,7 +363,7 @@ export default function Elevate() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: E, delay: 0.3 }}
-          className="text-xl font-light leading-relaxed max-w-[48ch] mb-16"
+          className="text-base sm:text-xl font-light leading-relaxed max-w-[48ch] mb-10 sm:mb-16"
           style={{ color: "rgba(234,228,213,0.5)" }}>
           A competitive coaching platform built for Valorant players who are
           serious about ranking up. Structured paths, VOD reviews, and live
@@ -315,11 +375,11 @@ export default function Elevate() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, ease: E, delay: 0.4 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pt-8 sm:pt-10"
           style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {[
             { label: "Role", value: "Full Stack Dev" },
-            { label: "Stack", value: "React.js · MongoDB · OpenAI · Tailwind" },
+            { label: "Stack", value: "React · MongoDB · OpenAI · Tailwind" },
             { label: "Team", value: "Solo" },
             { label: "Year", value: "2025" },
           ].map(({ label, value }) => (
@@ -330,7 +390,7 @@ export default function Elevate() {
                 {label}
               </p>
               <p
-                className="text-sm font-light"
+                className="text-xs sm:text-sm font-light"
                 style={{ color: "rgba(234,228,213,0.6)" }}>
                 {value}
               </p>
@@ -339,180 +399,171 @@ export default function Elevate() {
         </motion.div>
       </section>
 
-      {/* SCROLL-DRIVEN HERO VIDEO */}
-      <HeroVideo />
+      {/* VIDEO — desktop scroll-driven / mobile static image */}
+      {isMobile ? <MobileHeroCover /> : <HeroVideo />}
 
-      {/* Two screenshots */}
-      <section className="px-10 lg:px-20 grid grid-cols-2 gap-4 mb-4 mt-4">
+      {/* Hero screenshots */}
+      <section className="px-6 sm:px-10 lg:px-20 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 mt-4">
         <Fade delay={0.05}>
-          <ImgPlaceholder label="Dashboard screenshot" />
+          <ScreenImg src={player_profile} alt="Player profile" />
         </Fade>
         <Fade delay={0.1}>
-          <ImgPlaceholder label="Coaching session UI" />
+          <ScreenImg src={player_review} alt="Player review" />
         </Fade>
       </section>
 
       <Rule />
 
-      {/* PROBLEM */}
-      <section className="px-10 lg:px-20 mb-24">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <Fade>
-            <Label>The Problem</Label>
-            <SectionHeading>
-              Getting better at Valorant requires coaching. Getting coaching is
-              a mess.
-            </SectionHeading>
-            <Body>
-              The gap between a casual player and a high-rank player isn't
-              mechanics — it's structured feedback. Existing options are
-              fragmented: Discord servers full of noise, expensive 1-on-1
-              sessions with no accountability, and YouTube guides that don't
-              adapt to your specific weaknesses. Elevate was built to close that
-              gap.
-            </Body>
-          </Fade>
-          <Fade delay={0.1}>
-            <ImgPlaceholder
-              label="Problem space / competitive analysis"
-              aspect="4/3"
-            />
-          </Fade>
+      {/* ── OVERVIEW ──────────────────────────────────────────────────────── */}
+      <section className="px-6 sm:px-10 lg:px-20 mb-16 sm:mb-24">
+        <Fade>
+          <Label>Overview</Label>
+          <SectionHeading>Two sides of the same platform.</SectionHeading>
+          <Body>
+            Elevate connects Valorant players with verified coaches through a
+            structured workflow — browse, book, submit, review, improve. Every
+            feature was built to eliminate the friction that makes existing
+            coaching options impractical.
+          </Body>
+        </Fade>
+
+        {/* Two-column feature summary cards */}
+        <div className="mt-12 grid sm:grid-cols-2 gap-4">
+          {[
+            {
+              title: "For Players",
+              items: [
+                "Browse verified coaches by rank and role",
+                "Book sessions and pay via Razorpay",
+                "Submit gameplay VODs for structured review",
+                "Receive skill ratings and detailed coach notes",
+                "Real-time messaging with hired coaches",
+              ],
+            },
+            {
+              title: "For Coaches",
+              items: [
+                "Dedicated dashboard to manage review requests",
+                "Upload gameplay showcase videos to profile",
+                "Review player VODs and submit written feedback",
+                "Rate players across individual skill dimensions",
+                "Real-time chat with active players",
+              ],
+            },
+          ].map(({ title, items }) => (
+            <Fade key={title}>
+              <div
+                className="h-full rounded-sm p-6 sm:p-8 flex flex-col gap-5"
+                style={{
+                  background: "#0d0d0d",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}>
+                <p
+                  className="text-[10px] tracking-[0.35em] uppercase"
+                  style={{
+                    color: `${ORANGE}80`,
+                    fontWeight: 300,
+                    fontFamily: "'Geist', sans-serif",
+                  }}>
+                  {title}
+                </p>
+                <ul className="flex flex-col gap-3">
+                  {items.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span
+                        className="mt-[0.4rem] shrink-0 w-[4px] h-[4px] rounded-full"
+                        style={{ background: `${ORANGE}60` }}
+                      />
+                      <span
+                        style={{
+                          fontFamily: "'Geist', sans-serif",
+                          fontWeight: 300,
+                          fontSize: "0.875rem",
+                          color: "rgba(234,228,213,0.5)",
+                          lineHeight: 1.75,
+                        }}>
+                        {item}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Fade>
+          ))}
         </div>
       </section>
 
       <Rule />
 
-      {/* INSIGHT 1 */}
-      <section className="px-10 lg:px-20 mb-24">
-        <Fade>
-          <Label>Key Insight</Label>
-          <SectionHeading>
-            Players know what rank they want. They don't know what to fix.
-          </SectionHeading>
-          <Body>
-            User interviews revealed a consistent pattern: players have a goal
-            rank in mind but no structured path to get there. They grind ranked
-            games reinforcing bad habits instead of breaking them. A coaching
-            platform needs to diagnose before it prescribes.
-          </Body>
-        </Fade>
-        <Fade delay={0.1} className="mt-12">
-          <ImgPlaceholder label="User research affinity map" />
-        </Fade>
-        <p
-          className="text-[9px] tracking-[0.2em] uppercase mt-3 opacity-20 px-10 lg:px-0"
-          style={{ fontFamily: "'Geist', sans-serif" }}>
-          User interview synthesis
-        </p>
-      </section>
+      {/* ── FEATURE 1: Browse coaches ───────────────────────────────────────── */}
+      <FeatureRow
+        label="Player Experience · 01"
+        heading="Browse verified coaches by rank and role."
+        body="Players filter the coach roster by their specific rank tier and agent role — no guessing who's qualified. Every coach profile shows rank proof, specialisation, pricing, and showcase clips so players can make an informed decision before spending a rupee."
+        img={find_coach}
+        alt="Find a coach"
+        caption="Coach discovery"
+      />
 
       <Rule />
 
-      {/* INSIGHT 2 */}
-      <section className="px-10 lg:px-20 mb-24">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <Fade delay={0.05}>
-            <ImgPlaceholder label="Competitor audit" aspect="4/3" />
-          </Fade>
-          <Fade>
-            <Label>Key Insight</Label>
-            <SectionHeading>
-              Existing platforms optimize for revenue, not improvement.
-            </SectionHeading>
-            <Body>
-              Competitors sell coaching hours. Elevate sells rank improvement.
-              The distinction matters: a platform built around hours has no
-              incentive for you to need fewer of them. Elevate tracks
-              performance metrics session-over-session, surfacing exactly what's
-              holding you back.
-            </Body>
-          </Fade>
-        </div>
-      </section>
+      {/* ── FEATURE 2: Submit VOD ───────────────────────────────────────────── */}
+      <FeatureRow
+        label="Player Experience · 02"
+        heading="Submit your VOD. Get structured feedback."
+        body="Players attach a gameplay recording to a booked session and pay via Razorpay in the same flow. No back-and-forth over DM — the submission is logged, the coach is notified, and the review arrives with skill ratings and timestamped notes."
+        img={player_review}
+        alt="Player review submission"
+        imgFirst
+        caption="VOD submission flow"
+      />
 
       <Rule />
 
-      {/* SOLUTION 1 */}
-      <section className="px-10 lg:px-20 mb-10">
-        <Fade>
-          <Label>Solution</Label>
-          <SectionHeading>
-            Structured rank paths with AI-assisted gap analysis.
-          </SectionHeading>
-          <Body>
-            Elevate generates a personalized improvement roadmap based on your
-            rank, role, and agent pool. Each session targets a specific weakness
-            — positioning, economy, ability usage — so every hour has a defined
-            outcome.
-          </Body>
-        </Fade>
-      </section>
-      <section className="px-10 lg:px-20 mb-4">
-        <Fade>
-          <VideoPlaceholder label="Rank path builder — feature demo" />
-        </Fade>
-      </section>
-      <p
-        className="text-[9px] tracking-[0.2em] uppercase mt-3 opacity-20 px-10 lg:px-20"
-        style={{ fontFamily: "'Geist', sans-serif" }}>
-        Rank path builder
-      </p>
+      {/* ── FEATURE 3: Receive feedback ─────────────────────────────────────── */}
+      <FeatureRow
+        label="Player Experience · 03"
+        heading="Feedback you can actually act on."
+        body="Coach notes are structured around specific skill dimensions — positioning, economy, ability usage, game sense. Each rating is tied to what happened in the VOD, not a vague impression. Players know exactly what to drill in their next ranked session."
+        img={player_review_open}
+        alt="Player review open"
+        caption="Structured feedback view"
+      />
 
       <Rule />
 
-      {/* SOLUTION 2 */}
-      <section className="px-10 lg:px-20 mb-24">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <Fade>
-            <Label>Solution</Label>
-            <SectionHeading>
-              VOD review with timestamped, frame-level feedback.
-            </SectionHeading>
-            <Body>
-              Coaches annotate recordings frame-by-frame. Players review
-              feedback asynchronously — no scheduling conflicts, no $80/hr rates
-              wasted on pleasantries. Every note is tied to a specific in-game
-              moment, making feedback immediately actionable.
-            </Body>
-          </Fade>
-          <Fade delay={0.1}>
-            <VideoPlaceholder label="VOD review demo" tall />
-          </Fade>
-        </div>
-      </section>
+      {/* ── FEATURE 4: Coach dashboard ──────────────────────────────────────── */}
+      <FeatureRow
+        label="Coach Experience · 01"
+        heading="A dashboard built around the coach workflow."
+        body="Incoming review requests surface in one place — no inbox chaos, no missed sessions. Coaches see the player's rank, their submitted VOD, and the session details before accepting. The review interface keeps notes and video in sync."
+        img={coach_review}
+        alt="AI Valorant coach tools"
+        imgFirst
+        caption="Coach review dashboard"
+      />
 
       <Rule />
 
-      {/* DESIGN DECISION */}
-      <section className="px-10 lg:px-20 mb-24">
-        <Fade>
-          <Label>Design Decision</Label>
-          <SectionHeading>
-            Making rank progress feel real, not abstract.
-          </SectionHeading>
-          <Body>
-            Rank in Valorant is a tier + RR number. Elevate maps that to a
-            visual progress bar anchored to your stated goal — so you see not
-            just where you are, but how far the gap has closed since you
-            started. Small wins compound. The dashboard makes them visible.
-          </Body>
-        </Fade>
-        <Fade delay={0.08} className="mt-12 grid grid-cols-2 gap-4">
-          <ImgPlaceholder label="Progress dashboard" />
-          <ImgPlaceholder label="Session history view" />
-        </Fade>
-      </section>
+      {/* ── FEATURE 5: Real-time messaging ──────────────────────────────────── */}
+      <FeatureRow
+        label="Shared · Both sides"
+        heading="Real-time messaging between players and coaches."
+        body="Every booked session opens a persistent chat thread between the player and their coach. Players can ask follow-up questions on their feedback. Coaches can clarify recommendations before the next ranked session. The conversation lives alongside the review — not buried in Discord."
+        img={realtime_chat}
+        alt="Real-time chat between player and coach"
+        caption="In-session messaging"
+      />
 
       <Rule />
 
-      {/* LEARNINGS */}
-      <section className="px-10 lg:px-20 mb-24">
+      {/* ── LEARNINGS ───────────────────────────────────────────────────────── */}
+      <section className="px-6 sm:px-10 lg:px-20 mb-16 sm:mb-24">
         <Fade>
           <Label>Key Learnings</Label>
           <SectionHeading>What building this taught me.</SectionHeading>
         </Fade>
-        <div className="mt-10 grid md:grid-cols-2 gap-10">
+        <div className="mt-8 sm:mt-10 grid sm:grid-cols-2 gap-8 sm:gap-10">
           {[
             {
               n: "01",
@@ -536,7 +587,7 @@ export default function Elevate() {
             },
           ].map(({ n, h, b }) => (
             <Fade key={n}>
-              <div className="flex gap-6">
+              <div className="flex gap-5 sm:gap-6">
                 <span
                   className="text-[10px] tracking-[0.3em] uppercase shrink-0 mt-1"
                   style={{ color: `${ORANGE}60`, fontWeight: 300 }}>
@@ -562,11 +613,11 @@ export default function Elevate() {
 
       <Rule />
 
-      {/* NEXT */}
-      <section className="px-10 lg:px-20 pb-32">
+      {/* ── NEXT PROJECT ────────────────────────────────────────────────────── */}
+      <section className="px-6 sm:px-10 lg:px-20 pb-24 sm:pb-32">
         <Fade>
           <p
-            className="text-[9px] tracking-[0.3em] uppercase mb-8"
+            className="text-[9px] tracking-[0.3em] uppercase mb-6 sm:mb-8"
             style={{ color: "rgba(255,255,255,0.18)" }}>
             Next Project
           </p>
@@ -576,16 +627,16 @@ export default function Elevate() {
             onClick={() => navigateWithTransition("/zentra")}
             className="group w-full text-left">
             <div
-              className="relative overflow-hidden rounded-sm p-10 transition-colors duration-500 hover:bg-white/2"
+              className="relative overflow-hidden rounded-sm p-6 sm:p-10 transition-colors duration-500 hover:bg-white/2"
               style={{
                 background: "#0d0d0d",
                 border: "1px solid rgba(255,255,255,0.06)",
               }}>
               <ImgPlaceholder label="Zentra cover image" aspect="21/6" />
-              <div className="mt-8 flex items-end justify-between">
+              <div className="mt-6 sm:mt-8 flex items-end justify-between">
                 <div>
                   <p
-                    className="text-[9px] tracking-[0.3em] uppercase mb-3"
+                    className="text-[9px] tracking-[0.3em] uppercase mb-2 sm:mb-3"
                     style={{ color: "rgba(255,255,255,0.2)" }}>
                     2D Spatial World
                   </p>
