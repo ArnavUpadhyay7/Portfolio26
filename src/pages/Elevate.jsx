@@ -11,6 +11,12 @@ import elevate_home from "../assets/elevateImages/elevate_home.png";
 import player_review_open from "../assets/elevateImages/player_review_open.png";
 import realtime_chat from "../assets/elevateImages/realtime_chat.png";
 import coach_review from "../assets/elevateImages/coach_review.png";
+import browse_coach from "../assets/videos/browse_coach.mp4";
+import coach_review_dashboard from "../assets/videos/coach_review_dashboard.mp4";
+import feedback from "../assets/videos/feedback.mp4";
+import realtime_messaging from "../assets/videos/realtime_messaging.mp4";
+import submitting_vod from "../assets/videos/submitting_vod.mp4";
+import room from "../assets/zentraImages/room.png";
 
 const CREAM = "#EAE4D5";
 const ORANGE = "#E8400C";
@@ -242,7 +248,9 @@ function MobileHeroCover() {
 }
 
 // Feature row: alternates image left/right on desktop, always stacks on mobile
-function FeatureRow({
+// Replace your existing FeatureRowWithVideoHover component with this new one:
+
+function FeatureRowWithVideoHover({
   label,
   heading,
   body,
@@ -250,22 +258,84 @@ function FeatureRow({
   alt,
   imgFirst = false,
   caption,
+  hoverVideo,
 }) {
+  const [hovered, setHovered] = useState(false);
+  const videoRef = useRef(null);
+  const isMobile = useIsMobile();
+
+  const handleMouseEnter = () => {
+    if (isMobile) return;
+    setHovered(true);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isMobile) return;
+    setHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
+
   return (
     <section className="px-6 sm:px-10 lg:px-20 mb-16 sm:mb-24">
       <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        {/* Text — always first on mobile, conditionally second on desktop */}
         <Fade className={imgFirst ? "lg:order-2" : ""}>
           <Label>{label}</Label>
           <SectionHeading>{heading}</SectionHeading>
           <Body>{body}</Body>
         </Fade>
 
-        {/* Image — always second on mobile, conditionally first on desktop */}
         <Fade
           delay={0.1}
           className={`flex flex-col gap-2 ${imgFirst ? "lg:order-1" : ""}`}>
-          <ScreenImg src={img} alt={alt} />
+          {/* Hover container */}
+          <div
+            className="relative w-full rounded-sm overflow-hidden"
+            style={{
+              border: "1px solid rgba(255,255,255,0.06)",
+              background: "#0e0e0e",
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}>
+            {/* Static image */}
+            <img
+              src={img}
+              alt={alt}
+              className="w-full h-full object-cover block"
+              style={{
+                display: "block",
+                transition: "opacity 0.5s cubic-bezier(0.16,1,0.3,1)",
+                opacity: hovered && !isMobile ? 0 : 1,
+              }}
+            />
+
+            {/* Video overlay — desktop only */}
+            {!isMobile && hoverVideo && (
+              <video
+                ref={videoRef}
+                src={hoverVideo}
+                loop
+                muted
+                playsInline
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  transition: "opacity 0.5s cubic-bezier(0.16,1,0.3,1)",
+                  opacity: hovered ? 1 : 0,
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </div>
+
           {caption && (
             <p
               className="text-[9px] tracking-[0.2em] uppercase opacity-20"
@@ -276,34 +346,6 @@ function FeatureRow({
         </Fade>
       </div>
     </section>
-  );
-}
-
-// Inline feature list items with dot separator
-function FeatureList({ items }) {
-  return (
-    <ul className="mt-8 flex flex-col gap-3">
-      {items.map((item, i) => (
-        <Fade key={i} delay={i * 0.06}>
-          <li className="flex items-start gap-3">
-            <span
-              className="mt-[0.35rem] shrink-0 w-[5px] h-[5px] rounded-full"
-              style={{ background: `${ORANGE}70` }}
-            />
-            <span
-              style={{
-                fontFamily: "'Geist', sans-serif",
-                fontWeight: 300,
-                fontSize: "0.9rem",
-                color: "rgba(234,228,213,0.55)",
-                lineHeight: 1.7,
-              }}>
-              {item}
-            </span>
-          </li>
-        </Fade>
-      ))}
-    </ul>
   );
 }
 
@@ -343,125 +385,136 @@ export default function Elevate() {
       </nav>
 
       {/* HERO */}
-      <section className="px-6 sm:px-10 lg:px-20 pt-28 sm:pt-36 lg:pt-40 pb-12 sm:pb-16">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: E, delay: 0.1 }}
-          className="text-[10px] tracking-[0.4em] uppercase mb-6 sm:mb-8"
-          style={{ color: `${ORANGE}70`, fontWeight: 300 }}>
-          Product · 2025
-        </motion.p>
-
-        <div className="overflow-hidden mb-4 sm:mb-6">
-          <motion.h1
-            initial={{ y: "110%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 1.0, ease: E, delay: 0.15 }}
+      <section className="relative px-6 sm:px-10 lg:px-20 pt-28 sm:pt-36 lg:pt-40 pb-12 sm:pb-16">
+        {/* Banner — static, no motion wrapper */}
+        <div
+          className="hidden sm:block absolute inset-x-0 top-0 h-105 lg:h-150 pointer-events-none"
+          style={{ zIndex: 0 }}>
+          <img
+            src="https://i.pinimg.com/1200x/ec/31/12/ec31124f9d13dbd3d31efd38f5256cf8.jpg"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover object-top"
+            style={{ display: "block" }}
+          />
+          <div
+            className="absolute inset-0"
             style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: "clamp(3.5rem, 13vw, 12rem)",
-              lineHeight: 0.88,
-              letterSpacing: "-0.03em",
-              textTransform: "uppercase",
-              color: CREAM,
-            }}>
-            Elevate
-          </motion.h1>
+              background:
+                "linear-gradient(to bottom, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.1) 40%, rgba(10,10,10,0.85) 80%, #0a0a0a 100%)",
+            }}
+          />
         </div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, ease: E, delay: 0.3 }}
-          className="text-base sm:text-xl font-light leading-relaxed max-w-[48ch] mb-10 sm:mb-14"
-          style={{ color: "rgba(234,228,213,0.5)" }}>
-          A competitive coaching platform built for Valorant players who are
-          serious about ranking up. Structured paths, VOD reviews, and live
-          sessions — without the noise of Discord servers.
-        </motion.p>
+        {/* Hero text — always on top */}
+        <div className="relative" style={{ zIndex: 1 }}>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: E, delay: 0.1 }}
+            className="text-[10px] tracking-[0.4em] uppercase mb-6 sm:mb-8"
+            style={{ color: `${ORANGE}70`, fontWeight: 300 }}>
+            Product · 2025
+          </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: E, delay: 0.4 }}
-          className="flex items-center gap-3">
-          {/* Primary — Live URL */}
-          <a
-            href="https://elevate-xqw2.onrender.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-300"
-            style={{
-              background: ORANGE,
-              color: "#080808",
-              fontFamily: "'Geist', sans-serif",
-              fontWeight: 500,
-              letterSpacing: "0.12em",
-              borderRadius: "2px",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "0.85";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "1";
-            }}>
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <circle cx="6" cy="6" r="2" fill="#080808" />
-              <circle cx="6" cy="6" r="5" stroke="#080808" strokeWidth="1" />
-              <path
-                d="M4 6c0-1.1.4-2.1 1-2.8M8 6c0 1.1-.4 2.1-1 2.8M3 6h6M3.5 4h5M3.5 8h5"
-                stroke="#080808"
-                strokeWidth="0.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Live Site
-          </a>
+          <div className="overflow-hidden mb-4 sm:mb-6">
+            <motion.h1
+              initial={{ y: "110%" }}
+              animate={{ y: 0 }}
+              transition={{ duration: 1.0, ease: E, delay: 0.15 }}
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: "clamp(3.5rem, 13vw, 12rem)",
+                lineHeight: 0.88,
+                letterSpacing: "-0.03em",
+                textTransform: "uppercase",
+                color: CREAM,
+              }}>
+              Elevate
+            </motion.h1>
+          </div>
 
-          {/* Secondary — GitHub */}
-          <a
-            href="https://github.com/ArnavUpadhyay7/elevate"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-300"
-            style={{
-              background: "transparent",
-              color: "rgba(234,228,213,0.55)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              fontFamily: "'Geist', sans-serif",
-              fontWeight: 300,
-              letterSpacing: "0.12em",
-              borderRadius: "2px",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)";
-              e.currentTarget.style.color = "rgba(234,228,213,0.85)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-              e.currentTarget.style.color = "rgba(234,228,213,0.55)";
-            }}>
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 13 13"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M6.5 1a5.5 5.5 0 00-1.739 10.716c.275.05.376-.119.376-.265 0-.131-.005-.477-.008-.936-1.531.333-1.854-.738-1.854-.738-.25-.636-.611-.805-.611-.805-.5-.341.038-.334.038-.334.552.039.843.567.843.567.491.841 1.288.598 1.602.457.05-.355.192-.598.35-.735-1.222-.139-2.508-.611-2.508-2.72 0-.601.215-1.092.567-1.477-.057-.138-.246-.699.054-1.457 0 0 .462-.148 1.513.564a5.27 5.27 0 011.379-.186c.467.002.938.063 1.378.186 1.05-.712 1.511-.564 1.511-.564.301.758.112 1.319.055 1.457.353.385.566.876.566 1.477 0 2.115-1.288 2.58-2.514 2.716.198.17.374.506.374 1.02 0 .736-.007 1.329-.007 1.51 0 .147.099.318.378.264A5.501 5.501 0 006.5 1z"
-                fill="currentColor"
-              />
-            </svg>
-            GitHub
-          </a>
-        </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, ease: E, delay: 0.3 }}
+            className="text-base sm:text-xl font-light leading-relaxed max-w-[48ch] mb-10 sm:mb-14"
+            style={{ color: "rgba(234,228,213,0.5)" }}>
+            A competitive coaching platform built for Valorant players who are
+            serious about ranking up. Structured paths, VOD reviews, and live
+            sessions — without the noise of Discord servers.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: E, delay: 0.4 }}
+            className="flex items-center gap-3">
+            {/* Primary — Live URL */}
+
+            <a
+              href="https://elevate-xqw2.onrender.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-300"
+              style={{
+                background: ORANGE,
+                color: "#080808",
+                fontFamily: "'Geist', sans-serif",
+                fontWeight: 500,
+                letterSpacing: "0.12em",
+                borderRadius: "2px",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}>
+              <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2" fill="#080808" />
+                <circle cx="6" cy="6" r="5" stroke="#080808" strokeWidth="1" />
+                <path
+                  d="M4 6c0-1.1.4-2.1 1-2.8M8 6c0 1.1-.4 2.1-1 2.8M3 6h6M3.5 4h5M3.5 8h5"
+                  stroke="#080808"
+                  strokeWidth="0.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Live Site
+            </a>
+
+            {/* Secondary — GitHub */}
+
+            <a
+              href="https://github.com/ArnavUpadhyay7/elevate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-300"
+              style={{
+                background: "transparent",
+                color: "rgba(234,228,213,0.55)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                fontFamily: "'Geist', sans-serif",
+                fontWeight: 300,
+                letterSpacing: "0.12em",
+                borderRadius: "2px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)";
+                e.currentTarget.style.color = "rgba(234,228,213,0.85)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                e.currentTarget.style.color = "rgba(234,228,213,0.55)";
+              }}>
+              <svg width="20" height="20" viewBox="0 0 13 13" fill="none">
+                <path
+                  d="M6.5 1a5.5 5.5 0 00-1.739 10.716c.275.05.376-.119.376-.265 0-.131-.005-.477-.008-.936-1.531.333-1.854-.738-1.854-.738-.25-.636-.611-.805-.611-.805-.5-.341.038-.334.038-.334.552.039.843.567.843.567.491.841 1.288.598 1.602.457.05-.355.192-.598.35-.735-1.222-.139-2.508-.611-2.508-2.72 0-.601.215-1.092.567-1.477-.057-.138-.246-.699.054-1.457 0 0 .462-.148 1.513.564a5.27 5.27 0 011.379-.186c.467.002.938.063 1.378.186 1.05-.712 1.511-.564 1.511-.564.301.758.112 1.319.055 1.457.353.385.566.876.566 1.477 0 2.115-1.288 2.58-2.514 2.716.198.17.374.506.374 1.02 0 .736-.007 1.329-.007 1.51 0 .147.099.318.378.264A5.501 5.501 0 006.5 1z"
+                  fill="currentColor"
+                />
+              </svg>
+              GitHub
+            </a>
+          </motion.div>
+        </div>
       </section>
 
       <Rule />
@@ -513,20 +566,21 @@ export default function Elevate() {
 
       <Rule />
 
-      {/* ── FEATURE 1: Browse coaches ───────────────────────────────────────── */}
-      <FeatureRow
+      {/* ── FEATURE 1: Browse coaches ── */}
+      <FeatureRowWithVideoHover
         label="Player Experience · 01"
         heading="Browse verified coaches by rank and role."
         body="Players filter the coach roster by their specific rank tier and agent role — no guessing who's qualified. Every coach profile shows rank proof, specialisation, pricing, and showcase clips so players can make an informed decision before spending a rupee."
         img={find_coach}
         alt="Find a coach"
         caption="Coach discovery"
+        hoverVideo={browse_coach}
       />
 
       <Rule />
 
-      {/* ── FEATURE 2: Submit VOD ───────────────────────────────────────────── */}
-      <FeatureRow
+      {/* ── FEATURE 2: Submit VOD ── */}
+      <FeatureRowWithVideoHover
         label="Player Experience · 02"
         heading="Submit your VOD. Get structured feedback."
         body="Players attach a gameplay recording to a booked session and pay via Razorpay in the same flow. No back-and-forth over DM — the submission is logged, the coach is notified, and the review arrives with skill ratings and timestamped notes."
@@ -534,24 +588,26 @@ export default function Elevate() {
         alt="Player review submission"
         imgFirst
         caption="VOD submission flow"
+        hoverVideo={submitting_vod}
       />
 
       <Rule />
 
-      {/* ── FEATURE 3: Receive feedback ─────────────────────────────────────── */}
-      <FeatureRow
+      {/* ── FEATURE 3: Receive feedback ── */}
+      <FeatureRowWithVideoHover
         label="Player Experience · 03"
         heading="Feedback you can actually act on."
         body="Coach notes are structured around specific skill dimensions — positioning, economy, ability usage, game sense. Each rating is tied to what happened in the VOD, not a vague impression. Players know exactly what to drill in their next ranked session."
         img={player_review_open}
         alt="Player review open"
         caption="Structured feedback view"
+        hoverVideo={feedback}
       />
 
       <Rule />
 
-      {/* ── FEATURE 4: Coach dashboard ──────────────────────────────────────── */}
-      <FeatureRow
+      {/* ── FEATURE 4: Coach dashboard ── */}
+      <FeatureRowWithVideoHover
         label="Coach Experience · 01"
         heading="A dashboard built around the coach workflow."
         body="Incoming review requests surface in one place — no inbox chaos, no missed sessions. Coaches see the player's rank, their submitted VOD, and the session details before accepting. The review interface keeps notes and video in sync."
@@ -559,18 +615,20 @@ export default function Elevate() {
         alt="AI Valorant coach tools"
         imgFirst
         caption="Coach review dashboard"
+        hoverVideo={coach_review_dashboard}
       />
 
       <Rule />
 
-      {/* ── FEATURE 5: Real-time messaging ──────────────────────────────────── */}
-      <FeatureRow
+      {/* ── FEATURE 5: Real-time messaging ── */}
+      <FeatureRowWithVideoHover
         label="Shared · Both sides"
         heading="Real-time messaging between players and coaches."
         body="Every booked session opens a persistent chat thread between the player and their coach. Players can ask follow-up questions on their feedback. Coaches can clarify recommendations before the next ranked session. The conversation lives alongside the review — not buried in Discord."
         img={realtime_chat}
         alt="Real-time chat between player and coach"
         caption="In-session messaging"
+        hoverVideo={realtime_messaging}
       />
 
       <Rule />
@@ -645,13 +703,40 @@ export default function Elevate() {
             onClick={() => navigateWithTransition("/zentra")}
             className="group w-full text-left">
             <div
-              className="relative overflow-hidden rounded-sm p-6 sm:p-10 transition-colors duration-500 hover:bg-white/2"
+              className="relative overflow-hidden rounded-sm transition-all duration-700"
               style={{
                 background: "#0d0d0d",
                 border: "1px solid rgba(255,255,255,0.06)",
               }}>
-              <ImgPlaceholder label="Zentra cover image" aspect="21/6" />
-              <div className="mt-6 sm:mt-8 flex items-end justify-between">
+              {/* Full-bleed cover image with hover zoom */}
+              <div
+                className="relative overflow-hidden"
+                style={{ aspectRatio: "21/9" }}>
+                <img
+                  src={room}
+                  alt="Zentra cover image"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                />
+                {/* Subtle vignette so edges feel contained */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, transparent 40%, rgba(13,13,13,0.6) 80%, #0d0d0d 100%)",
+                  }}
+                />
+                {/* Left fade */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to right, #0d0d0d 0%, transparent 15%, transparent 85%, #0d0d0d 100%)",
+                  }}
+                />
+              </div>
+
+              {/* Text row below image */}
+              <div className="px-6 sm:px-10 pb-6 sm:pb-10 pt-4 flex items-end justify-between">
                 <div>
                   <p
                     className="text-[9px] tracking-[0.3em] uppercase mb-2 sm:mb-3"
@@ -671,7 +756,7 @@ export default function Elevate() {
                   </h3>
                 </div>
                 <span
-                  className="text-[10px] tracking-[0.25em] uppercase transition-opacity duration-300 group-hover:opacity-60"
+                  className="text-[10px] tracking-[0.25em] uppercase transition-all duration-300 group-hover:opacity-60 group-hover:translate-x-1"
                   style={{ color: ORANGE }}>
                   View Case Study →
                 </span>
