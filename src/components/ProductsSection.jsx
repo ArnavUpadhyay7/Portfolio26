@@ -3,7 +3,7 @@ import { motion, useInView } from "framer-motion";
 import { ProductBlock } from "./ProductBlock";
 
 import ElevateThumbnail from "../assets/thumbnails/elevate.png";
-import ZentraThumbnail from "../assets/thumbnails/zentra.png";
+import ZentraThumbnail from "../assets/zentraImages/room.png";
 
 const CREAM = "#EAE4D5";
 const ORANGE = "#E8400C";

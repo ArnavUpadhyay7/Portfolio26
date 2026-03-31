@@ -86,24 +86,6 @@ function Body({ children }) {
   );
 }
 
-function ImgPlaceholder({ label = "Image placeholder", aspect = "16/9" }) {
-  return (
-    <div
-      className="w-full flex items-center justify-center rounded-sm"
-      style={{
-        aspectRatio: aspect,
-        background: "#0e0e0e",
-        border: "1px dashed rgba(255,255,255,0.08)",
-      }}>
-      <span
-        className="text-[9px] tracking-[0.25em] uppercase opacity-25"
-        style={{ fontFamily: "'Geist', sans-serif", color: CREAM }}>
-        {label}
-      </span>
-    </div>
-  );
-}
-
 function ScreenImg({ src, alt }) {
   return (
     <div
@@ -246,9 +228,6 @@ function MobileHeroCover() {
     </Fade>
   );
 }
-
-// Feature row: alternates image left/right on desktop, always stacks on mobile
-// Replace your existing FeatureRowWithVideoHover component with this new one:
 
 function FeatureRowWithVideoHover({
   label,
