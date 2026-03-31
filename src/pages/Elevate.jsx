@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { usePageTransition } from "../components/PageTransition";
 import elevateVideo from "../assets/videos/Elevate_Main.mp4";
 import player_profile from "../assets/elevateImages/player_profile.png";
+import coach_profile from "../assets/elevateImages/coach_profile.png";
 import player_review from "../assets/elevateImages/player_review.png";
 import find_coach from "../assets/elevateImages/find_coach.png";
 import elevate_home from "../assets/elevateImages/elevate_home.png";
@@ -241,11 +242,18 @@ function MobileHeroCover() {
 }
 
 // Feature row: alternates image left/right on desktop, always stacks on mobile
-function FeatureRow({ label, heading, body, img, alt, imgFirst = false, caption }) {
+function FeatureRow({
+  label,
+  heading,
+  body,
+  img,
+  alt,
+  imgFirst = false,
+  caption,
+}) {
   return (
     <section className="px-6 sm:px-10 lg:px-20 mb-16 sm:mb-24">
       <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-
         {/* Text — always first on mobile, conditionally second on desktop */}
         <Fade className={imgFirst ? "lg:order-2" : ""}>
           <Label>{label}</Label>
@@ -254,14 +262,18 @@ function FeatureRow({ label, heading, body, img, alt, imgFirst = false, caption 
         </Fade>
 
         {/* Image — always second on mobile, conditionally first on desktop */}
-        <Fade delay={0.1} className={`flex flex-col gap-2 ${imgFirst ? "lg:order-1" : ""}`}>
+        <Fade
+          delay={0.1}
+          className={`flex flex-col gap-2 ${imgFirst ? "lg:order-1" : ""}`}>
           <ScreenImg src={img} alt={alt} />
           {caption && (
-            <p className="text-[9px] tracking-[0.2em] uppercase opacity-20"
-              style={{ fontFamily: "'Geist', sans-serif" }}>{caption}</p>
+            <p
+              className="text-[9px] tracking-[0.2em] uppercase opacity-20"
+              style={{ fontFamily: "'Geist', sans-serif" }}>
+              {caption}
+            </p>
           )}
         </Fade>
-
       </div>
     </section>
   );
@@ -363,133 +375,139 @@ export default function Elevate() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: E, delay: 0.3 }}
-          className="text-base sm:text-xl font-light leading-relaxed max-w-[48ch] mb-10 sm:mb-16"
+          className="text-base sm:text-xl font-light leading-relaxed max-w-[48ch] mb-10 sm:mb-14"
           style={{ color: "rgba(234,228,213,0.5)" }}>
           A competitive coaching platform built for Valorant players who are
           serious about ranking up. Structured paths, VOD reviews, and live
           sessions — without the noise of Discord servers.
         </motion.p>
 
-        {/* Meta */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: E, delay: 0.4 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pt-8 sm:pt-10"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          {[
-            { label: "Role", value: "Full Stack Dev" },
-            { label: "Stack", value: "React · MongoDB · OpenAI · Tailwind" },
-            { label: "Team", value: "Solo" },
-            { label: "Year", value: "2025" },
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <p
-                className="text-[9px] tracking-[0.3em] uppercase mb-2"
-                style={{ color: "rgba(255,255,255,0.22)", fontWeight: 300 }}>
-                {label}
-              </p>
-              <p
-                className="text-xs sm:text-sm font-light"
-                style={{ color: "rgba(234,228,213,0.6)" }}>
-                {value}
-              </p>
-            </div>
-          ))}
+          className="flex items-center gap-3">
+          {/* Primary — Live URL */}
+          <a
+            href="https://elevate-xqw2.onrender.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-300"
+            style={{
+              background: ORANGE,
+              color: "#080808",
+              fontFamily: "'Geist', sans-serif",
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              borderRadius: "2px",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "0.85";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "1";
+            }}>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <circle cx="6" cy="6" r="2" fill="#080808" />
+              <circle cx="6" cy="6" r="5" stroke="#080808" strokeWidth="1" />
+              <path
+                d="M4 6c0-1.1.4-2.1 1-2.8M8 6c0 1.1-.4 2.1-1 2.8M3 6h6M3.5 4h5M3.5 8h5"
+                stroke="#080808"
+                strokeWidth="0.8"
+                strokeLinecap="round"
+              />
+            </svg>
+            Live Site
+          </a>
+
+          {/* Secondary — GitHub */}
+          <a
+            href="https://github.com/ArnavUpadhyay7/elevate"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-300"
+            style={{
+              background: "transparent",
+              color: "rgba(234,228,213,0.55)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              fontFamily: "'Geist', sans-serif",
+              fontWeight: 300,
+              letterSpacing: "0.12em",
+              borderRadius: "2px",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)";
+              e.currentTarget.style.color = "rgba(234,228,213,0.85)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+              e.currentTarget.style.color = "rgba(234,228,213,0.55)";
+            }}>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 13 13"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M6.5 1a5.5 5.5 0 00-1.739 10.716c.275.05.376-.119.376-.265 0-.131-.005-.477-.008-.936-1.531.333-1.854-.738-1.854-.738-.25-.636-.611-.805-.611-.805-.5-.341.038-.334.038-.334.552.039.843.567.843.567.491.841 1.288.598 1.602.457.05-.355.192-.598.35-.735-1.222-.139-2.508-.611-2.508-2.72 0-.601.215-1.092.567-1.477-.057-.138-.246-.699.054-1.457 0 0 .462-.148 1.513.564a5.27 5.27 0 011.379-.186c.467.002.938.063 1.378.186 1.05-.712 1.511-.564 1.511-.564.301.758.112 1.319.055 1.457.353.385.566.876.566 1.477 0 2.115-1.288 2.58-2.514 2.716.198.17.374.506.374 1.02 0 .736-.007 1.329-.007 1.51 0 .147.099.318.378.264A5.501 5.501 0 006.5 1z"
+                fill="currentColor"
+              />
+            </svg>
+            GitHub
+          </a>
         </motion.div>
-      </section>
-
-      {/* VIDEO — desktop scroll-driven / mobile static image */}
-      {isMobile ? <MobileHeroCover /> : <HeroVideo />}
-
-      {/* Hero screenshots */}
-      <section className="px-6 sm:px-10 lg:px-20 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 mt-4">
-        <Fade delay={0.05}>
-          <ScreenImg src={player_profile} alt="Player profile" />
-        </Fade>
-        <Fade delay={0.1}>
-          <ScreenImg src={player_review} alt="Player review" />
-        </Fade>
       </section>
 
       <Rule />
 
-      {/* ── OVERVIEW ──────────────────────────────────────────────────────── */}
-      <section className="px-6 sm:px-10 lg:px-20 mb-16 sm:mb-24">
+      {/* VIDEO — desktop scroll-driven / mobile static image */}
+      {isMobile ? <MobileHeroCover /> : <HeroVideo />}
+
+      <Rule />
+
+      {/* Hero screenshots */}
+      <section className="px-6 sm:px-10 lg:px-20 mb-4 mt-4">
         <Fade>
-          <Label>Overview</Label>
-          <SectionHeading>Two sides of the same platform.</SectionHeading>
-          <Body>
-            Elevate connects Valorant players with verified coaches through a
-            structured workflow — browse, book, submit, review, improve. Every
-            feature was built to eliminate the friction that makes existing
-            coaching options impractical.
-          </Body>
+          <div className="mb-8 sm:mb-10">
+            <Label>The Product</Label>
+            <SectionHeading>
+              Built for both sides of the session.
+            </SectionHeading>
+            <Body>
+              Players get a personalised dashboard to find coaches, submit VODs,
+              and track feedback. Coaches get a dedicated profile and review
+              workspace — everything needed to run sessions professionally.
+            </Body>
+          </div>
         </Fade>
 
-        {/* Two-column feature summary cards */}
-        <div className="mt-12 grid sm:grid-cols-2 gap-4">
-          {[
-            {
-              title: "For Players",
-              items: [
-                "Browse verified coaches by rank and role",
-                "Book sessions and pay via Razorpay",
-                "Submit gameplay VODs for structured review",
-                "Receive skill ratings and detailed coach notes",
-                "Real-time messaging with hired coaches",
-              ],
-            },
-            {
-              title: "For Coaches",
-              items: [
-                "Dedicated dashboard to manage review requests",
-                "Upload gameplay showcase videos to profile",
-                "Review player VODs and submit written feedback",
-                "Rate players across individual skill dimensions",
-                "Real-time chat with active players",
-              ],
-            },
-          ].map(({ title, items }) => (
-            <Fade key={title}>
-              <div
-                className="h-full rounded-sm p-6 sm:p-8 flex flex-col gap-5"
-                style={{
-                  background: "#0d0d0d",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}>
-                <p
-                  className="text-[10px] tracking-[0.35em] uppercase"
-                  style={{
-                    color: `${ORANGE}80`,
-                    fontWeight: 300,
-                    fontFamily: "'Geist', sans-serif",
-                  }}>
-                  {title}
-                </p>
-                <ul className="flex flex-col gap-3">
-                  {items.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span
-                        className="mt-[0.4rem] shrink-0 w-[4px] h-[4px] rounded-full"
-                        style={{ background: `${ORANGE}60` }}
-                      />
-                      <span
-                        style={{
-                          fontFamily: "'Geist', sans-serif",
-                          fontWeight: 300,
-                          fontSize: "0.875rem",
-                          color: "rgba(234,228,213,0.5)",
-                          lineHeight: 1.75,
-                        }}>
-                        {item}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Fade>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <Fade delay={0.05}>
+            <div className="flex flex-col gap-2">
+              <ScreenImg src={player_profile} alt="Player profile" />
+              <p
+                className="text-[9px] tracking-[0.2em] uppercase opacity-20"
+                style={{ fontFamily: "'Geist', sans-serif" }}>
+                Player dashboard
+              </p>
+            </div>
+          </Fade>
+          <Fade delay={0.1}>
+            <div className="flex flex-col gap-2">
+              <ScreenImg src={coach_profile} alt="Coach profile" />
+              <p
+                className="text-[9px] tracking-[0.2em] uppercase opacity-20"
+                style={{ fontFamily: "'Geist', sans-serif" }}>
+                Coach profile
+              </p>
+            </div>
+          </Fade>
         </div>
       </section>
 
