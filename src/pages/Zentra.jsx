@@ -174,9 +174,9 @@ export default function Zentra() {
       {/* ── HERO ── */}
       <section className="relative px-6 sm:px-10 lg:px-20 pt-28 sm:pt-36 lg:pt-40 pb-12 sm:pb-16">
         <div className="hidden sm:block absolute inset-x-0 top-0 h-105 lg:h-150 pointer-events-none" style={{ zIndex: 0 }}>
-          <img src="https://i.pinimg.com/1200x/ec/31/12/ec31124f9d13dbd3d31efd38f5256cf8.jpg"
+          <img src="https://i.pinimg.com/1200x/87/7b/cc/877bcca2b98f312f4c79c7f6b6473f1c.jpg"
             alt="" aria-hidden="true"
-            className="w-full h-full object-cover object-top" style={{ display: "block" }} />
+            className="w-full h-full" style={{ display: "block" }} />
           <div className="absolute inset-0"
             style={{ background: "linear-gradient(to bottom, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.1) 40%, rgba(10,10,10,0.85) 80%, #0a0a0a 100%)" }} />
         </div>

@@ -1,18 +1,33 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { usePageTransition } from "./PageTransition";
 
 const CREAM = "#EAE4D5";
 const E = [0.16, 1, 0.3, 1];
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const h = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+  return isMobile;
+}
+
 export function ProductBlock({ product, index }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [hovered, setHovered] = useState(false);
   const { navigateWithTransition } = usePageTransition();
+  const isMobile = useIsMobile();
+
+  // On mobile, always treat as "hovered" (active/coloured state)
+  const active = isMobile ? true : hovered;
 
   const isEven = index % 2 === 0;
-  // Route: /elevate or /zentra directly
   const route = `/${product.id}`;
 
   return (
@@ -24,25 +39,27 @@ export function ProductBlock({ product, index }) {
       initial={{ opacity: 0, y: 48 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.85, ease: E, delay: index * 0.08 }}
-      className="relative px-10 lg:px-20 py-24 border-b border-white/5 transition-colors duration-700"
+      className="relative px-6 sm:px-10 lg:px-20 py-16 sm:py-24 border-b border-white/5 transition-colors duration-700"
       style={{
-        backgroundColor: hovered ? `${product.accent}06` : "transparent",
+        backgroundColor: active ? `${product.accent}06` : "transparent",
         fontFamily: "'Geist', sans-serif",
-        cursor: "pointer", // custom cursor stays active
+        cursor: "pointer",
       }}>
-      {/* Subtle accent glow */}
+
+      {/* Accent glow */}
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
         style={{
-          opacity: hovered ? 1 : 0,
+          opacity: active ? 1 : 0,
           background: `radial-gradient(ellipse 60% 50% at ${isEven ? "80%" : "20%"} 50%, ${product.accent}08, transparent)`,
         }}
       />
 
-      <div
-        className={`relative flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-24 ${!isEven ? "lg:flex-row-reverse" : ""}`}>
+      <div className={`relative flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-24 ${!isEven ? "lg:flex-row-reverse" : ""}`}>
+
         {/* ── TEXT SIDE ── */}
-        <div className="flex flex-col gap-8 lg:w-5/12">
+        <div className="flex flex-col gap-6 sm:gap-8 lg:w-5/12">
+
           {/* Index + animated line */}
           <div className="flex items-center gap-4">
             <span
@@ -51,7 +68,7 @@ export function ProductBlock({ product, index }) {
               0{index + 1}
             </span>
             <motion.div
-              animate={{ width: hovered ? 48 : 16 }}
+              animate={{ width: active ? 48 : 16 }}
               transition={{ duration: 0.4, ease: E }}
               className="h-px"
               style={{ background: `${product.accent}50` }}
@@ -60,7 +77,7 @@ export function ProductBlock({ product, index }) {
 
           {/* Product name */}
           <motion.h2
-            animate={{ color: hovered ? product.accent : CREAM }}
+            animate={{ color: active ? product.accent : CREAM }}
             transition={{ duration: 0.4, ease: E }}
             style={{
               fontFamily: "'Barlow Condensed', sans-serif",
@@ -77,9 +94,7 @@ export function ProductBlock({ product, index }) {
           <p
             className="text-base font-light leading-relaxed transition-opacity duration-500"
             style={{
-              color: hovered
-                ? "rgba(234,228,213,0.85)"
-                : "rgba(234,228,213,0.4)",
+              color: active ? "rgba(234,228,213,0.85)" : "rgba(234,228,213,0.4)",
               maxWidth: "34ch",
             }}>
             {product.hook}
@@ -89,9 +104,7 @@ export function ProductBlock({ product, index }) {
           <p
             className="text-sm font-light leading-loose transition-opacity duration-700"
             style={{
-              color: hovered
-                ? "rgba(234,228,213,0.45)"
-                : "rgba(234,228,213,0.2)",
+              color: active ? "rgba(234,228,213,0.45)" : "rgba(234,228,213,0.2)",
               maxWidth: "38ch",
             }}>
             {product.desc}
@@ -105,19 +118,16 @@ export function ProductBlock({ product, index }) {
                 className="text-[9px] tracking-[0.18em] uppercase px-3 py-1.5 rounded-full transition-all duration-500"
                 style={{
                   fontWeight: 300,
-                  color: hovered
-                    ? `${product.accent}90`
-                    : "rgba(255,255,255,0.22)",
-                  border: `1px solid ${hovered ? `${product.accent}35` : "rgba(255,255,255,0.08)"}`,
+                  color: active ? `${product.accent}90` : "rgba(255,255,255,0.22)",
+                  border: `1px solid ${active ? `${product.accent}35` : "rgba(255,255,255,0.08)"}`,
                 }}>
                 {tech}
               </span>
             ))}
           </div>
 
-          {/* CTA — stops propagation so only the button nav fires, not double-nav */}
+          {/* CTA */}
           <motion.button
-            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={(e) => {
               e.stopPropagation();
@@ -126,14 +136,12 @@ export function ProductBlock({ product, index }) {
             className="self-start flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase py-3 px-6 rounded-full transition-all duration-300"
             style={{
               fontWeight: 400,
-              color: hovered ? product.accent : "rgba(255,255,255,0.3)",
-              border: `1px solid ${hovered ? `${product.accent}60` : "rgba(255,255,255,0.1)"}`,
-              background: hovered ? `${product.accent}08` : "transparent",
+              color: active ? product.accent : "rgba(255,255,255,0.3)",
+              border: `1px solid ${active ? `${product.accent}60` : "rgba(255,255,255,0.1)"}`,
+              background: active ? `${product.accent}08` : "transparent",
             }}>
             View Case Study
-            <motion.span
-              animate={{ x: hovered ? 4 : 0 }}
-              transition={{ duration: 0.3, ease: E }}>
+            <motion.span animate={{ x: active ? 4 : 0 }} transition={{ duration: 0.3, ease: E }}>
               →
             </motion.span>
           </motion.button>
@@ -149,14 +157,15 @@ export function ProductBlock({ product, index }) {
             style={{
               aspectRatio: "16 / 10",
               background: "linear-gradient(135deg, #111 0%, #0d0d0d 100%)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              border: `1px solid ${active ? `${product.accent}20` : "rgba(255,255,255,0.06)"}`,
+              transition: "border-color 0.6s ease",
             }}>
             <motion.img
               src={product.mockup.src}
               alt={product.name}
               animate={{
-                scale: hovered ? 1.04 : 1,
-                filter: hovered
+                scale: active ? 1.04 : 1,
+                filter: active
                   ? "grayscale(0%) brightness(1)"
                   : "grayscale(80%) brightness(0.55)",
               }}
@@ -168,7 +177,7 @@ export function ProductBlock({ product, index }) {
             <div
               className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
               style={{
-                opacity: hovered ? 0.08 : 0,
+                opacity: active ? 0.08 : 0,
                 background: `radial-gradient(circle at center, ${product.accent}, transparent 70%)`,
               }}
             />
@@ -179,16 +188,14 @@ export function ProductBlock({ product, index }) {
                 className="text-[8px] tracking-[0.22em] uppercase transition-opacity duration-500"
                 style={{
                   fontWeight: 300,
-                  color: hovered
-                    ? `${product.accent}70`
-                    : "rgba(255,255,255,0.15)",
+                  color: active ? `${product.accent}70` : "rgba(255,255,255,0.15)",
                 }}>
-                {" "}
                 {product.name} / Preview
               </span>
             </div>
           </motion.div>
         </div>
+
       </div>
     </motion.div>
   );
