@@ -102,7 +102,7 @@ export default function ProductsSection() {
           animate={headInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, ease: E, delay: 0.28 }}
           className="mt-5 text-[11px] tracking-[0.18em] uppercase"
-          style={{ color: "rgba(234,228,213,0.2)", fontWeight: 300 }}>
+          style={{ color: "rgba(234,228,213,0.4)", fontWeight: 300 }}>
           Things I shipped, not just built.
         </motion.p>
       </div>

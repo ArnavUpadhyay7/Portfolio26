@@ -92,9 +92,9 @@ export function ProductBlock({ product, index }) {
 
           {/* Hook */}
           <p
-            className="text-base font-light leading-relaxed transition-opacity duration-500"
+            className="text-[1.05rem] font-light leading-relaxed transition-opacity duration-500"
             style={{
-              color: active ? "rgba(234,228,213,0.85)" : "rgba(234,228,213,0.4)",
+              color: active ? "rgba(234,228,213,0.85)" : "rgba(234,228,213,0.55)",
               maxWidth: "34ch",
             }}>
             {product.hook}
@@ -102,9 +102,9 @@ export function ProductBlock({ product, index }) {
 
           {/* Description */}
           <p
-            className="text-sm font-light leading-loose transition-opacity duration-700"
+            className="text-[0.95rem] font-light leading-loose transition-opacity duration-700"
             style={{
-              color: active ? "rgba(234,228,213,0.45)" : "rgba(234,228,213,0.2)",
+              color: active ? "rgba(234,228,213,0.45)" : "rgba(234,228,213,0.35)",
               maxWidth: "38ch",
             }}>
             {product.desc}

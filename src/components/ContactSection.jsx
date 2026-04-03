@@ -413,7 +413,7 @@ export default function ContactSection() {
                 fontSize: 11,
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
-                color: "rgba(234,228,213,0.22)",
+                color: "rgba(234,228,213,0.45)",
               }}>
               Arnav Upadhyay
             </span>
@@ -425,7 +425,7 @@ export default function ContactSection() {
                 fontWeight: 300,
                 fontSize: 10,
                 letterSpacing: "0.16em",
-                color: "rgba(234,228,213,0.22)",
+                color: "rgba(234,228,213,0.45)",
               }}>
               Based in India · Available for freelance &amp; Internships
             </span>

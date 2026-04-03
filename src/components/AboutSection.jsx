@@ -229,7 +229,7 @@ export default function AboutSection() {
                 fontWeight:    300,
                 fontSize:      11,
                 letterSpacing: "0.12em",
-                color:         "rgba(234,228,213,0.20)",
+                color:         "rgba(234,228,213,0.40)",
               }}>Frontend · Motion · Performance</span>
             </motion.div>
           </div>
@@ -321,7 +321,7 @@ export default function AboutSection() {
               fontWeight:    300,
               fontSize:      10,
               letterSpacing: "0.12em",
-              color:         "rgba(234,228,213,0.20)",
+              color:         "rgba(234,228,213,0.40)",
             }}>Frontend · Motion · Performance</span>
           </motion.div>
 
