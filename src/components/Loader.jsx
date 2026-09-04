@@ -8,7 +8,7 @@ const CREAM = "rgba(234,228,213,1)";
 const E     = [0.16, 1, 0.3, 1];
 const E_SNAP = [0.76, 0, 0.24, 1];
 
-const REVEAL_WORDS = ["Fuck", "it", "we", "ball"];
+const REVEAL_WORDS = ["F*ck", "it", "we", "ball"];
 const RED_WORDS = new Set(["we", "ball"]);
 const START_DELAY = 0.5; // seconds before the text begins animating in
 
@@ -44,11 +44,15 @@ export default function Loader({ onComplete }) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setCount(100);
+        rafRef.current = setTimeout(() => setPhase("wipe"), 200);
         setPhase("wipe");
       }
     };
     rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(rafRef.current);
+    }
   }, [phase]);
 
   return (
