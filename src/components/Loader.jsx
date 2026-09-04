@@ -28,7 +28,8 @@ export default function Loader({ onComplete }) {
     if (phase === "wipe") document.body.style.overflow = "";
   }, [phase]);
 
-  // Counter RAF — eased, 1600ms. As soon as it hits 100, go straight to wipe.
+  // Counter RAF — eased, 1600ms. Once it hits 100, hold for 500ms
+  // (so the reveal text stays fully visible) before starting the wipe.
   useEffect(() => {
     if (phase !== "count") return;
     const DURATION = 1600;
@@ -45,14 +46,13 @@ export default function Loader({ onComplete }) {
       } else {
         setCount(100);
         rafRef.current = setTimeout(() => setPhase("wipe"), 500);
-        setPhase("wipe");
       }
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(rafRef.current);
       clearTimeout(rafRef.current);
-    }
+    };
   }, [phase]);
 
   return (
@@ -167,8 +167,9 @@ export default function Loader({ onComplete }) {
           </AnimatePresence>
 
           {/* Mounts as soon as counting starts, waits START_DELAY before the
-              letters animate in, and unmounts the instant the wipe begins —
-              so the loader disappears right when the loading bar ends. */}
+              letters animate in, and now stays mounted through the 500ms
+              hold after the counter hits 100 — so the reveal text is still
+              fully visible right up until the wipe begins. */}
           {phase === "count" && (
             <motion.div
               key="reveal"
