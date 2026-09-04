@@ -2,14 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const OR    = "#E8400C";
+const RED   = "#E8400C";
 const BG    = "#0a0a0a";
 const CREAM = "rgba(234,228,213,1)";
 const E     = [0.16, 1, 0.3, 1];
 const E_SNAP = [0.76, 0, 0.24, 1];
 
+const REVEAL_WORDS = ["Fuck", "it", "we", "ball"];
+const RED_WORDS = new Set(["we", "ball"]);
+const START_DELAY = 0.5; // seconds before the text begins animating in
+
 export default function Loader({ onComplete }) {
   const [count,  setCount]  = useState(0);
-  const [phase,  setPhase]  = useState("count");
+  const [phase,  setPhase]  = useState("count"); // "count" -> "wipe" -> "done"
   const rafRef = useRef(null);
 
   // Lock scroll
@@ -23,7 +28,7 @@ export default function Loader({ onComplete }) {
     if (phase === "wipe") document.body.style.overflow = "";
   }, [phase]);
 
-  // Counter RAF — eased, 1600ms
+  // Counter RAF — eased, 1600ms. As soon as it hits 100, go straight to wipe.
   useEffect(() => {
     if (phase !== "count") return;
     const DURATION = 1600;
@@ -39,18 +44,11 @@ export default function Loader({ onComplete }) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setCount(100);
-        setTimeout(() => setPhase("reveal"), 320);
+        setPhase("wipe");
       }
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [phase]);
-
-  // reveal → wipe
-  useEffect(() => {
-    if (phase !== "reveal") return;
-    const t = setTimeout(() => setPhase("wipe"), 1050);
-    return () => clearTimeout(t);
   }, [phase]);
 
   return (
@@ -164,80 +162,94 @@ export default function Loader({ onComplete }) {
             )}
           </AnimatePresence>
 
-          <AnimatePresence>
-            {phase === "reveal" && (
+          {/* Mounts as soon as counting starts, waits START_DELAY before the
+              letters animate in, and unmounts the instant the wipe begins —
+              so the loader disappears right when the loading bar ends. */}
+          {phase === "count" && (
+            <motion.div
+              key="reveal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              style={{
+                position:       "absolute",
+                inset:          0,
+                zIndex:         3,
+                display:        "flex",
+                flexDirection:  "column",
+                alignItems:     "center",
+                justifyContent: "center",
+                gap:            20,
+                pointerEvents:  "none",
+              }}
+            >
+              <div style={{ display: "flex", gap: "0.32em", overflow: "hidden" }}>
+                {(() => {
+                  let li = 0;
+                  return REVEAL_WORDS.map((word, wi) => (
+                    <span key={wi} style={{ display: "flex", gap: "0.06em" }}>
+                      {word.split("").map((char) => {
+                        const idx = li++;
+                        return (
+                          <motion.span
+                            key={idx}
+                            initial={{ y: "110%", opacity: 0 }}
+                            animate={{ y: "0%", opacity: 1 }}
+                            transition={{
+                              duration: 0.55,
+                              ease:     E,
+                              delay:    START_DELAY + idx * 0.055,
+                            }}
+                            style={{
+                              fontFamily:    "'Barlow Condensed', sans-serif",
+                              fontWeight:    900,
+                              fontSize:      "clamp(2.4rem, 7vw, 6rem)",
+                              letterSpacing: "0.06em",
+                              textTransform: "uppercase",
+                              color:         RED_WORDS.has(word.toLowerCase()) ? RED : CREAM,
+                              userSelect:    "none",
+                              lineHeight:    1,
+                              display:       "block",
+                            }}
+                          >
+                            {char}
+                          </motion.span>
+                        );
+                      })}
+                    </span>
+                  ));
+                })()}
+              </div>
+
               <motion.div
-                key="reveal"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.55, ease: E, delay: START_DELAY + 0.42 }}
                 style={{
-                  position:       "absolute",
-                  inset:          0,
-                  zIndex:         3,
-                  display:        "flex",
-                  flexDirection:  "column",
-                  alignItems:     "center",
-                  justifyContent: "center",
-                  gap:            20,
-                  pointerEvents:  "none",
+                  height:          1,
+                  width:           "clamp(120px, 18vw, 280px)",
+                  background:      `linear-gradient(to right, transparent, ${OR}, transparent)`,
+                  transformOrigin: "center",
+                }}
+              />
+
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: E, delay: START_DELAY + 0.60 }}
+                style={{
+                  fontFamily:    "'Barlow', sans-serif",
+                  fontWeight:    300,
+                  fontSize:      10,
+                  letterSpacing: "0.30em",
+                  textTransform: "uppercase",
+                  color:         `rgba(232,64,12,0.55)`,
                 }}
               >
-                <div style={{ display: "flex", gap: "0.06em", overflow: "hidden" }}>
-                  {"ENTERING".split("").map((char, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ y: "110%", opacity: 0 }}
-                      animate={{ y: "0%", opacity: 1 }}
-                      transition={{ duration: 0.55, ease: E, delay: i * 0.055 }}
-                      style={{
-                        fontFamily:    "'Barlow Condensed', sans-serif",
-                        fontWeight:    900,
-                        fontSize:      "clamp(2.4rem, 7vw, 6rem)",
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        color:         CREAM,
-                        userSelect:    "none",
-                        lineHeight:    1,
-                        display:       "block",
-                      }}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </div>
-
-                <motion.div
-                  initial={{ scaleX: 0, opacity: 0 }}
-                  animate={{ scaleX: 1, opacity: 1 }}
-                  transition={{ duration: 0.55, ease: E, delay: 0.42 }}
-                  style={{
-                    height:          1,
-                    width:           "clamp(120px, 18vw, 280px)",
-                    background:      `linear-gradient(to right, transparent, ${OR}, transparent)`,
-                    transformOrigin: "center",
-                  }}
-                />
-
-                <motion.span
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: E, delay: 0.60 }}
-                  style={{
-                    fontFamily:    "'Barlow', sans-serif",
-                    fontWeight:    300,
-                    fontSize:      10,
-                    letterSpacing: "0.30em",
-                    textTransform: "uppercase",
-                    color:         `rgba(232,64,12,0.55)`,
-                  }}
-                >
-                  Portfolio 2026
-                </motion.span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                Portfolio 2026
+              </motion.span>
+            </motion.div>
+          )}
 
           {phase === "wipe" && (
             <motion.div
