@@ -44,7 +44,7 @@ export default function Loader({ onComplete }) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         setCount(100);
-        rafRef.current = setTimeout(() => setPhase("wipe"), 200);
+        rafRef.current = setTimeout(() => setPhase("wipe"), 500);
         setPhase("wipe");
       }
     };
